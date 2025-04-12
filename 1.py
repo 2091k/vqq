@@ -37,7 +37,7 @@ def extract_real_video_url(episode_path):
         return None
 
 # 主爬取流程
-url = 'http://www.cbbnb.com/view/35170.html#'
+url = 'http://www.cbbnb.com/view/36010.html#'
 response = session.get(url, headers=headers)
 soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -74,13 +74,12 @@ for tab in source_tabs:
         if episodes:
             sources[source_name] = episodes
 
-# 显示提取的源数量
-source_count = len(sources)
-print(f"成功提取的源数量: {source_count}")
-for source, episodes in sources.items():
-    print(f"源 [{source}] 包含有效剧集数: {len(episodes)}")
+# 调试输出
+print(f"成功提取的源数量: {len(sources)}")
+for name, eps in sources.items():
+    print(f"源 [{name}] 包含有效剧集数: {len(eps)}")
 
-# 使用Jinja2模板生成响应式页面（美化版本）
+# 使用Jinja2模板生成响应式页面
 template = Template('''
 <!DOCTYPE html>
 <html>
@@ -88,8 +87,6 @@ template = Template('''
 <head>
     <title>{{ title }} - 在线播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #ff6b6b;
@@ -97,75 +94,177 @@ template = Template('''
             --text-color: #ffffff;
         }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
             color: var(--text-color);
         }
 
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(45, 52, 54, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header a {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-decoration: none;
+            position: absolute;
+            left: 1rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .container {
+            margin-top: 70px;
+            padding: 15px;
+        }
+
+        .source-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .source-tab {
+            flex-shrink: 0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
         .source-tab.active {
-            background-color: var(--primary-color);
+            background: #808080; /* 源高亮用灰色 */
             color: white;
         }
 
-        .episode-btn.active {
-            background-color: var(--primary-color);
+        .episodes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        /* 优化播放器在手机端的显示 */
-        @media (max-width: 768px) {
-            .aspect-video {
-                aspect-ratio: 16 / 9;
-                height: auto;
+        .episode-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .episode-btn:hover {
+            background: var(--primary-color);
+        }
+
+        .episode-btn.active {
+            background: var(--primary-color);
+        }
+
+        #player-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 90px auto 0;
+                padding: 20px;
             }
-            /* 调整手机端文字大小 */
-            .source-tab,
-            .episode-btn {
-                font-size: 0.875rem; 
-                padding: 0.25rem 0.5rem; 
+
+            .episodes {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             }
-            h1 {
-                font-size: 1.25rem; 
-            }
-            p {
-                font-size: 0.875rem; 
+
+            .source-tabs {
+                flex-wrap: wrap;
+                overflow-x: visible;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- 头部导航 -->
-    <header class="fixed top-0 w-full bg-[rgba(45,52,54,0.95)] backdrop-blur-md p-4 shadow-md z-10 flex items-center justify-center gap-4">
-        <a href="../index.html" class="text-gray-400 text-xl whitespace-nowrap overflow-hidden text-ellipsis absolute left-4">
-            <i class="fa-solid fa-house"></i> 主页
+    <div class="header">
+        <a href="../index.html">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="24" height="24">
+    <path fill="gray" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/>
+</svg>    
         </a>
-        <h1 class="text-xl font-bold text-[var(--primary-color)] whitespace-nowrap overflow-hidden text-ellipsis">{{ title }}</h1>
-    </header>
+        <h1 class="title">{{ title }}</h1>
+    </div>
 
-    <!-- 内容容器 -->
-    <main class="mt-20 p-4 md:max-w-4xl md:mx-auto md:mt-24 md:p-6">
-        <!-- 显示提取的源数量 -->
-        <p class="text-gray-400 mb-4">源数量: {{ source_count }}</p>
-        <!-- 视频播放器 -->
-        <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
-            <iframe id="player" class="absolute top-0 left-0 w-full h-full border-0" allowfullscreen></iframe>
+    <div class="container">
+        <div id="player-container">
+            <iframe id="player" allowfullscreen></iframe>
         </div>
-
-        <!-- 播放源标签 -->
-        <div class="flex gap-2 overflow-x-auto pb-2 mb-4">
+        <br>
+        <div class="source-tabs">
             {% for source in sources %}
-            <button class="source-tab px-4 py-2 rounded-full bg-[rgba(255,255,255,0.1)] text-white border-0 cursor-pointer transition-all" onclick="showSource('{{ source }}')">{{ source }} ({{ sources[source]|length }})</button>
+            <button class="source-tab" onclick="showSource('{{ source }}')">{{ source }} ({{ sources[source]|length }})</button>
             {% endfor %}
         </div>
 
         {% for source in sources %}
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2 mb-4 episodes" id="{{ source }}" style="display: none;">
+        <div class="episodes" id="{{ source }}" style="display: none;">
             {% for episode in sources[source] %}
-            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('{{ episode.url }}', this)">{{ episode.name }}</button>
+            <button class="episode-btn" onclick="playVideo('{{ episode.url }}', this)">{{ episode.name }}</button>
             {% endfor %}
         </div>
         {% endfor %}
-    </main>
+
+    </div>
 
     <script>
         function showSource(sourceName) {
@@ -173,7 +272,7 @@ template = Template('''
             document.getElementById(sourceName).style.display = 'grid';
             document.querySelectorAll('.source-tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
-            // 清除所有剧集的高亮
+            // 切换源时移除所有集数按钮的高亮
             document.querySelectorAll('.episode-btn').forEach(btn => btn.classList.remove('active'));
         }
 
@@ -181,8 +280,9 @@ template = Template('''
             const player = document.getElementById('player');
             player.src = url;
             player.scrollIntoView({ behavior: 'smooth' });
-            // 添加当前剧集的高亮
+            // 移除所有集数按钮的高亮
             document.querySelectorAll('.episode-btn').forEach(btn => btn.classList.remove('active'));
+            // 为当前点击的集数按钮添加高亮
             btn.classList.add('active');
         }
 
@@ -201,14 +301,16 @@ template = Template('''
 </body>
 
 </html>
+    
 ''')
 
 # 获取当前脚本所在的目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
+# 拼接保存文件的完整路径
 file_name = f"{title}.html"
 save_path = os.path.join(current_dir, file_name)
 
 with open(save_path, 'w', encoding='utf-8') as f:
-    f.write(template.render(title=title, sources=sources, source_count=source_count))
+    f.write(template.render(title=title, sources=sources))
 
 print(f"播放页面已生成: {save_path}")    
