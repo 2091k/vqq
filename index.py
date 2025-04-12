@@ -97,7 +97,9 @@ html_template = """
             padding: 1rem;
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .title {
@@ -106,6 +108,47 @@ html_template = """
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .search-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .search-modal {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 1001;
+        }
+
+        .search-modal.active {
+            display: block;
+        }
+
+        .search-modal input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .search-modal button {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         .container {
@@ -142,6 +185,12 @@ html_template = """
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
+        }
+
+        @media (max-width: 767px) {
+            .episodes {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         .episode {
@@ -203,6 +252,16 @@ html_template = """
 <body>
     <div class="header">
         <h1 class="title">{{ title }}</h1>
+        <button class="search-button" onclick="openSearchModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="search-modal" id="search-modal">
+        <input type="text" id="search-input" placeholder="输入搜索关键词">
+        <button onclick="searchVideos()">搜索</button>
     </div>
 
     <div class="container">
@@ -215,7 +274,7 @@ html_template = """
         {% for source in sources %}
         <div class="episodes" id="{{ source }}" style="display: none;">
             {% for episode in sources[source] %}
-            <div class="episode">
+            <div class="episode" data-name="{{ episode.name }}">
                 <a href="{{ episode.url }}">
                     <img src="{{ episode.image_url }}" alt="{{ episode.name }} 封面">
                     <div class="video-name">{{ episode.name }}</div>
@@ -232,6 +291,28 @@ html_template = """
             document.getElementById(sourceName).style.display = 'grid';
             document.querySelectorAll('.source-tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
+        }
+
+        function openSearchModal() {
+            document.getElementById('search-modal').classList.add('active');
+        }
+
+        function closeSearchModal() {
+            document.getElementById('search-modal').classList.remove('active');
+        }
+
+        function searchVideos() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const allEpisodes = document.querySelectorAll('.episode');
+            allEpisodes.forEach(episode => {
+                const videoName = episode.dataset.name.toLowerCase();
+                if (videoName.includes(searchTerm)) {
+                    episode.style.display = 'block';
+                } else {
+                    episode.style.display = 'none';
+                }
+            });
+            closeSearchModal();
         }
 
         // 默认显示第一个源

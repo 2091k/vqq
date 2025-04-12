@@ -37,7 +37,7 @@ def extract_real_video_url(episode_path):
         return None
 
 # 主爬取流程
-url = 'http://www.cbbnb.com/view/36010.html#'
+url = 'http://www.cbbnb.com/view/35170.html#'
 response = session.get(url, headers=headers)
 soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -85,7 +85,7 @@ template = Template('''
 <html>
 
 <head>
-    <title>{{ title }} - 在线播放</title>
+    <title>{{ title }} - 魏无羡影院在线播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <style>
         :root {
