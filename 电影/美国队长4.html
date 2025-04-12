@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>神偷奶爸4 - 在线播放</title>
+    <title>美国队长4 - 在线播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
@@ -56,13 +56,13 @@
         <a href="../index.html" class="text-gray-400 text-xl whitespace-nowrap overflow-hidden text-ellipsis absolute left-4">
             <i class="fa-solid fa-house"></i> 主页
         </a>
-        <h1 class="text-xl font-bold text-[var(--primary-color)] whitespace-nowrap overflow-hidden text-ellipsis">神偷奶爸4</h1>
+        <h1 class="text-xl font-bold text-[var(--primary-color)] whitespace-nowrap overflow-hidden text-ellipsis">美国队长4</h1>
     </header>
 
     <!-- 内容容器 -->
     <main class="mt-20 p-4 md:max-w-4xl md:mx-auto md:mt-24 md:p-6">
         <!-- 显示提取的源数量 -->
-        <p class="text-gray-400 mb-4">源数量: 2</p>
+        <p class="text-gray-400 mb-4">源数量: 3</p>
         <!-- 视频播放器 -->
         <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
             <iframe id="player" class="absolute top-0 left-0 w-full h-full border-0" allowfullscreen></iframe>
@@ -71,22 +71,34 @@
         <!-- 播放源标签 -->
         <div class="flex gap-2 overflow-x-auto pb-2 mb-4">
             
-            <button class="source-tab px-4 py-2 rounded-full bg-[rgba(255,255,255,0.1)] text-white border-0 cursor-pointer transition-all" onclick="showSource('播放源1')">播放源1 (1)</button>
+            <button class="source-tab px-4 py-2 rounded-full bg-[rgba(255,255,255,0.1)] text-white border-0 cursor-pointer transition-all" onclick="showSource('播放源1')">播放源1 (3)</button>
             
             <button class="source-tab px-4 py-2 rounded-full bg-[rgba(255,255,255,0.1)] text-white border-0 cursor-pointer transition-all" onclick="showSource('播放源2')">播放源2 (1)</button>
+            
+            <button class="source-tab px-4 py-2 rounded-full bg-[rgba(255,255,255,0.1)] text-white border-0 cursor-pointer transition-all" onclick="showSource('播放源3')">播放源3 (1)</button>
             
         </div>
 
         
         <div class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2 mb-4 episodes" id="播放源1" style="display: none;">
             
-            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=SnuRy1pLsgd2KfYCf52vbpL1k0AZ2xDqccoiTz0Yh0TkIN5jOiMrvWmhTlEqrOO0OOLpnNfF5uygfdPwZCKRxpj7KFVs82OO0OO6d8TVjb4vjxFluMU0O0O0&type=ffm3u8', this)">HD中字</button>
+            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=WARWZbdJKRdauvPAisDf585V9EiQkWpO000OeO000OTGVhWEiAvKz6qbejwVOXRRLbJZ0re2&type=tkyun', this)">标清</button>
+            
+            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=IeFP5qVUDTpIkrCp485HK8kEMlfOO0OOSMedlRLfKHBVAGOO1p6K2XqnO000OFwLGPMgwEslDE96xC8O000OXPT1T6XtyV7OO0OOejWlO000OgoyEIil9ccnyfxTxvbjYNDISRkmT6bP8iAdki2dldZq5AiztA002X3sjj6KZTfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu', this)">高清</button>
+            
+            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6hnFO000O6O5bjBZyZVkcaR323zYved27SLSUI1uGpvcHviPWzzb8QNHIanEXGQxHkWl8yA0O0O00O0O0&type=ffm3u8', this)">备用</button>
             
         </div>
         
         <div class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2 mb-4 episodes" id="播放源2" style="display: none;">
             
-            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtLOO0OO9QQYHxsNZ2L4tzfLjuSSXLMn2vu5Mu1vYTuSa9kNyGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8', this)">HD中字</button>
+            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6hnFO000O6O5bjBZyZVkcaR323zYved27SLSUI1uGpvcHviPWzzb8QNHIanEXGQxHkWl8yA0O0O00O0O0&type=ffm3u8', this)">HD中字</button>
+            
+        </div>
+        
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2 mb-4 episodes" id="播放源3" style="display: none;">
+            
+            <button class="episode-btn px-4 py-2 rounded-md bg-[rgba(255,255,255,0.1)] text-white cursor-pointer transition-all" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=sxgFexOO0OOvfSJIpxSHSeqG4ZtsrE71mi1yEHgyMk9ZAEoi2AUDD3BnynkAlI7MN1oO000OGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8', this)">HD中字</button>
             
         </div>
         
