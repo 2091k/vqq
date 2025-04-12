@@ -14,23 +14,51 @@ def get_first_image_url(query):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # 定位搜索结果中的图片模块（通常在含有图片的搜索结果条目中）
-        image_containers = soup.find_all('div', class_='c-container')
-        for container in image_containers:
-            # 查找以 txx.baidu.com 开头的图片标签
-            img_tag = container.find('img', src=lambda x: x and x.startswith('https://t') and 'baidu.com' in x)
-            if img_tag:
-                img_url = img_tag.get('src')
-                return img_url
+        # 定位搜索结果中的主要内容区域（可根据百度页面结构调整）
+        main_content = soup.find('div', id='content_left')  # 百度搜索结果主区域
+        if not main_content:
+            main_content = soup  # 若找不到，使用整个页面
 
-        # 若未找到，尝试直接搜索所有以 txx.baidu.com 开头的 img 标签
-        img_tags = soup.find_all('img', src=lambda x: x and x.startswith('https://t') and 'baidu.com' in x)
-        if img_tags:
-            return img_tags[0]['src']
+        # 查找所有标签中符合条件的src属性（不限于img标签）
+        def is_valid_src(tag):
+            src = tag.get('src')
+            return src and src.startswith('https://t') and 'baidu.com' in src
+
+        # 先在搜索结果的主要容器中查找
+        for container in main_content.find_all('div', class_='c-container'):
+            target = container.find(is_valid_src)  # 查找第一个符合条件的标签
+            if target:
+                return target['src']
+
+        # 若未找到，在整个页面中查找所有符合条件的src
+        all_matching = main_content.find_all(is_valid_src)
+        if all_matching:
+            return all_matching[0]['src']  # 返回第一个匹配的链接
+
         return None
     except requests.RequestException as e:
         print(f"请求出错: {e}")
         return None
+
+
+# 从 img.txt 文件中读取视频名称和图片链接
+def read_image_urls_from_file():
+    image_urls = {}
+    if os.path.exists('img.txt'):
+        try:
+            # 尝试以 utf-8 编码读取文件
+            with open('img.txt', 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+        except UnicodeDecodeError:
+            # 如果 utf-8 解码失败，尝试以 gbk 编码读取文件
+            with open('img.txt', 'r', encoding='gbk') as f:
+                lines = f.readlines()
+        for i in range(0, len(lines), 2):
+            video_name = lines[i].strip()
+            image_url = lines[i + 1].strip() if i + 1 < len(lines) else None
+            if video_name and image_url:
+                image_urls[video_name] = image_url
+    return image_urls
 
 
 # 定义模板
@@ -39,7 +67,7 @@ html_template = """
 <html>
 
 <head>
-    <title>{{ title }} - 在线播放</title>
+    <title>{{ title }} - 在线视频播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <style>
         :root {
@@ -229,6 +257,7 @@ class Video:
 # 查找视频文件
 def find_videos(base_dir):
     sources = {}
+    image_urls = read_image_urls_from_file()
     categories = ['电影', '电视剧', '动漫']
     for category in categories:
         category_dir = os.path.join(base_dir, category)
@@ -239,11 +268,19 @@ def find_videos(base_dir):
                     if file.endswith(('.html', '.mp4', '.avi', '.mkv')):
                         video_url = os.path.join(root, file).replace('\\', '/')
                         video_name = os.path.splitext(file)[0]
-                        image_url = get_first_image_url(video_name)
+                        image_url = image_urls.get(video_name)
+                        if not image_url:
+                            image_url = get_first_image_url(video_name)
                         if not image_url:
                             image_url = "https://picsum.photos/200/300"
+                        # 获取文件修改时间
+                        file_mtime = os.path.getmtime(video_url)
                         video = Video(video_name, video_url, image_url)
-                        videos.append(video)
+                        videos.append((file_mtime, video))
+            # 按文件修改时间排序，最新的放在最前面
+            videos.sort(key=lambda x: x[0], reverse=True)
+            # 只保留 Video 对象
+            videos = [video for _, video in videos]
             if videos:
                 sources[category] = videos
     return sources
@@ -252,7 +289,7 @@ def find_videos(base_dir):
 # 生成 HTML 文件
 def generate_html(sources):
     template = jinja2.Template(html_template)
-    html_content = template.render(title="视频在线播放", sources=sources)
+    html_content = template.render(title="魏无羡影院", sources=sources)
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(html_content)
 

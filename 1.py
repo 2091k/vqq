@@ -37,7 +37,7 @@ def extract_real_video_url(episode_path):
         return None
 
 # 主爬取流程
-url = 'http://www.cbbnb.com/view/35904.html#'
+url = 'http://www.cbbnb.com/view/35170.html#'
 response = session.get(url, headers=headers)
 soup = BeautifulSoup(response.text, 'html.parser')
 
