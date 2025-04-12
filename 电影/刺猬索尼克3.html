@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>刺猬索尼克3 - 魏无羡影院在线播放</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #2d3436;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(45, 52, 54, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header a {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-decoration: none;
+            position: absolute;
+            left: 1rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .container {
+            margin-top: 70px;
+            padding: 15px;
+        }
+
+        .source-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .source-tab {
+            flex-shrink: 0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .source-tab.active {
+            background: #808080; /* 源高亮用灰色 */
+            color: white;
+        }
+
+        .episodes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .episode-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .episode-btn:hover {
+            background: var(--primary-color);
+        }
+
+        .episode-btn.active {
+            background: var(--primary-color);
+        }
+
+        #player-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 90px auto 0;
+                padding: 20px;
+            }
+
+            .episodes {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .source-tabs {
+                flex-wrap: wrap;
+                overflow-x: visible;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <a href="../index.html">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="24" height="24">
+    <path fill="gray" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/>
+</svg>    
+        </a>
+        <h1 class="title">刺猬索尼克3</h1>
+    </div>
+
+    <div class="container">
+        <div id="player-container">
+            <iframe id="player" allowfullscreen></iframe>
+        </div>
+        <br>
+        <div class="source-tabs">
+            
+            <button class="source-tab" onclick="showSource('播放源1')">播放源1 (2)</button>
+            
+            <button class="source-tab" onclick="showSource('播放源2')">播放源2 (1)</button>
+            
+        </div>
+
+        
+        <div class="episodes" id="播放源1" style="display: none;">
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWcO000OczQnTOO0OO7wUNJJQqXnIMHNfeaLS4XhCkJi1ihRncs1IA0O0O00O0O0&type=ffm3u8', this)">普通话</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWfJ1HMGHo1aagULwUmcbuKPlMD5sZq87opqqyKOO0OOHOO0OOyywA0O0O00O0O0&type=ffm3u8', this)">原声版</button>
+            
+        </div>
+        
+        <div class="episodes" id="播放源2" style="display: none;">
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=sxgFexOO0OOvfSJIpxSHSeqG4fecXERtGRiO000Ox50cyi1bTAllGwrD0hhWTsVXOO0OOpqb6kLtJZO000OPzGqGmOoHOO0OO5NgEOO0OOheO000OA0O0O00O0O0&type=lzm3u8', this)">HD中字</button>
+            
+        </div>
+        
+
+    </div>
+
+    <script>
+        function showSource(sourceName) {
+            document.querySelectorAll('.episodes').forEach(div => div.style.display = 'none');
+            document.getElementById(sourceName).style.display = 'grid';
+            document.querySelectorAll('.source-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            // 切换源时移除所有集数按钮的高亮
+            document.querySelectorAll('.episode-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function playVideo(url, btn) {
+            const player = document.getElementById('player');
+            player.src = url;
+            player.scrollIntoView({ behavior: 'smooth' });
+            // 移除所有集数按钮的高亮
+            document.querySelectorAll('.episode-btn').forEach(btn => btn.classList.remove('active'));
+            // 为当前点击的集数按钮添加高亮
+            btn.classList.add('active');
+        }
+
+        // 默认显示第一个源
+        window.onload = () => {
+            const firstTab = document.querySelector('.source-tab');
+            if (firstTab) firstTab.click();
+        };
+
+        // 横竖屏适配
+        window.addEventListener("resize", () => {
+            const player = document.getElementById('player');
+            player.style.height = player.offsetWidth * 9 / 16 + 'px';
+        });
+    </script>
+</body>
+
+</html>
+    
