@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>魏无羡影院 - 在线视频播放</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #2d3436;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(45, 52, 54, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .container {
+            margin-top: 70px;
+            padding: 15px;
+        }
+
+        .source-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .source-tab {
+            flex-shrink: 0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .source-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .episodes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .episode {
+            text-align: center;
+            position: relative;
+        }
+
+        .episode a {
+            display: block;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .episode img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .episode .video-name {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .episode-btn {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 90px auto 0;
+                padding: 20px;
+            }
+
+            .episodes {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .source-tabs {
+                flex-wrap: wrap;
+                overflow-x: visible;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 class="title">魏无羡影院</h1>
+    </div>
+
+    <div class="container">
+        <div class="source-tabs">
+            
+            <button class="source-tab" onclick="showSource('电影')">电影 (5)</button>
+            
+            <button class="source-tab" onclick="showSource('电视剧')">电视剧 (2)</button>
+            
+        </div>
+
+        
+        <div class="episodes" id="电影" style="display: none;">
+            
+            <div class="episode">
+                <a href="./电影/射雕英雄传：侠之大者.html">
+                    <img src="https://t13.baidu.com/it/u=1266134128,2029391731&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=5eb97bd8f99cd8d99688fe92e46c504e" alt="射雕英雄传：侠之大者 封面">
+                    <div class="video-name">射雕英雄传：侠之大者</div>
+                </a>
+            </div>
+            
+            <div class="episode">
+                <a href="./电影/毒液3：最后之舞.html">
+                    <img src="https://t13.baidu.com/it/u=666325742,1496646574&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=4c6122be12171f39b9225be7a2e84444" alt="毒液3：最后之舞 封面">
+                    <div class="video-name">毒液3：最后之舞</div>
+                </a>
+            </div>
+            
+            <div class="episode">
+                <a href="./电影/神偷奶爸4.html">
+                    <img src="https://t9.baidu.com/it/u=2373570073,4062896563&fm=217&app=126&size=r3,4&q=75&n=0&g=4n&f=JPEG&fmt=auto&maxorilen2heic=2000000?s=7DCD478E564606E248B3A8680300A079" alt="神偷奶爸4 封面">
+                    <div class="video-name">神偷奶爸4</div>
+                </a>
+            </div>
+            
+            <div class="episode">
+                <a href="./电影/哪吒之魔童降世.html">
+                    <img src="https://t13.baidu.com/it/u=1457039590,5006941&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=7d40b06dc27b258bdd6d59e160ec7ad0" alt="哪吒之魔童降世 封面">
+                    <div class="video-name">哪吒之魔童降世</div>
+                </a>
+            </div>
+            
+            <div class="episode">
+                <a href="./电影/误杀3.html">
+                    <img src="https://t13.baidu.com/it/u=3788772231,3322356829&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=7eb4d42912b72ab4d7013177c0e696a6" alt="误杀3 封面">
+                    <div class="video-name">误杀3</div>
+                </a>
+            </div>
+            
+        </div>
+        
+        <div class="episodes" id="电视剧" style="display: none;">
+            
+            <div class="episode">
+                <a href="./电视剧/雁回时.html">
+                    <img src="https://t14.baidu.com/it/u=902888965,1164929054&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=f92c677ee0c5b3651defb02104de604c" alt="雁回时 封面">
+                    <div class="video-name">雁回时</div>
+                </a>
+            </div>
+            
+            <div class="episode">
+                <a href="./电视剧/棋士.html">
+                    <img src="https://t14.baidu.com/it/u=981326159,3823569966&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=4075e761b713dd40a7dfec5cfb9bff17" alt="棋士 封面">
+                    <div class="video-name">棋士</div>
+                </a>
+            </div>
+            
+        </div>
+        
+    </div>
+
+    <script>
+        function showSource(sourceName) {
+            document.querySelectorAll('.episodes').forEach(div => div.style.display = 'none');
+            document.getElementById(sourceName).style.display = 'grid';
+            document.querySelectorAll('.source-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // 默认显示第一个源
+        window.onload = () => {
+            const firstTab = document.querySelector('.source-tab');
+            if (firstTab) firstTab.click();
+        };
+    </script>
+</body>
+
+</html>
