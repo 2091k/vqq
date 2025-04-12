@@ -1,0 +1,400 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>棋士 - 在线播放</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #2d3436;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(45, 52, 54, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header a {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-decoration: none;
+            position: absolute;
+            left: 1rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .container {
+            margin-top: 70px;
+            padding: 15px;
+        }
+
+        .source-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .source-tab {
+            flex-shrink: 0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .source-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .episodes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .episode-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .episode-btn:hover {
+            background: var(--primary-color);
+        }
+
+        #player-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 90px auto 0;
+                padding: 20px;
+            }
+
+            .episodes {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .source-tabs {
+                flex-wrap: wrap;
+                overflow-x: visible;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <a href="../index.html">主页</a>
+        <h1 class="title">棋士</h1>
+    </div>
+
+    <div class="container">
+        <div id="player-container">
+            <iframe id="player" allowfullscreen></iframe>
+        </div>
+        <br>
+        <div class="source-tabs">
+            
+            <button class="source-tab" onclick="showSource('播放源1')">播放源1 (22)</button>
+            
+            <button class="source-tab" onclick="showSource('播放源2')">播放源2 (22)</button>
+            
+            <button class="source-tab" onclick="showSource('播放源3')">播放源3 (22)</button>
+            
+            <button class="source-tab" onclick="showSource('播放源4')">播放源4 (22)</button>
+            
+        </div>
+
+        
+        <div class="episodes" id="播放源1" style="display: none;">
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=EoiIO000OGtlz7Cu9uZi7K5YZSe8dhVo56t6gRDnrrZjVeHKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第1集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=EoiIO000OGtlz7Cu9uZi7K5YZQFxu18iBY2TUgBEjOO0OOz1ON7Kz6qbejwVOXRRLbJZ0re2&type=tkyun')">第2集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=EoiIO000OGtlz7Cu9uZi7K5YZVS5fTVBal2flzzJpQmIwxzKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第3集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=SEO000OtnUNjh7VQI1YaEYOO0OOYXNuE120t9Z9fIYdEJ9KvPsOO0OOKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第4集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=SEO000OtnUNjh7VQI1YaEYOO0OOYXItUzLYPTz6tocqabkPQcebKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第5集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=BhYoPmPXNscUQTbkDJDO000OU6jzpfIyKVjTbMVWUZeTYcOO0OOKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第6集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=1JuiT8mHNT2lcMAfGOO0OO7bpdGiERssoFrknRH51QZ3OO0OOCOO0OOKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第7集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=qOO0OO55bOO0OOEs0GnO000OhA2EL2q0zhgEEchtV5gNvCvhfRR1DLOO0OOKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第8集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=CBoL9atEG0d7vcgOO0OOWxuEXZFKQ2UyIOM28CD6xsyqO000OHLKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第9集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=tMdvV3OO0OOpW2D4FKLYwnKf2OO0OOMBKnsSkmNoMDeIZKaJG7TKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第10集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=TT2nq1fBvO000OO000O7jRuHLRnxOO0OOO000O4j6iJlIU6Ee8jdyDSu0DXKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第11集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=Lofx68CyLFy0xfzzT7VOLuuDTr7LO000O85Zbc1W3gnjtODKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第12集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=IO1JwjFSG5FJijtwGHtle7QnN6WfghWTDAlpW6qIb8HKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第13集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=hscrZpO000OvEFLTqJHf6OSjMAVLsKQrEqNFDCxK0plEO9vKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第14集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=wn7zpf29AgJv6pwtmO000OmLFnfcLswzfQgAXDOMzmOO0OOjBzfKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第15集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=Dya35OgmGegEjlmFdDVrXgrAHJ1L34rZkSnJe9KryOXKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第16集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=eF6zASlsMhbPXOO0OOnGyhO000OiCSG2czDBMalFL72FKjpI8BXKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第17集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=NdyC1O000OAnhXO57wPCEGZ0UDopU4DmvS1GTygH2QwTDWvKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第18集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=somsGvjxwchxZm3iIhjDvhOm6mhts8DwslMjHBRlDCnKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第19集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=somsGvjxwchxZm3iIhjDvikO000O7B8O000OqPOXO000OonO000O72VH0jrKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第20集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=somsGvjxwchxZm3iIhjDvrurgYDUst2ecfNd8WGO000OfgXKz6qbejwVOXRRLbJZ0re2&type=tkyun')">第21集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=dRUYwVOn4HD25xd5ZTCCaOO0OO61XBskqyGLrxRJauOO0OOpfq3Kz6qbejwVOXRRLbJZ0re2&type=tkyun')">第22集</button>
+            
+        </div>
+        
+        <div class="episodes" id="播放源2" style="display: none;">
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=hI25yKrFXkzYTOO0OOirJDO000O4eFqqSEyOO0OOaXmbcZOO0OOhwxYeO1ateGVpuaUFTalsOO0OOivZVxJjHaBfp5wmyLWkoMV9PE7fsEhq0LECNOEBLuJuO000OpyMUM8lpWCH0PRswlliyDfGOkiRtkfYQLNLOO0OO9Xmocgbchga6Dfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">1</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=QcT6QrigpfJjYDQpQQNAyzTRyY2Opg8wjxAmS7FPJAmPdA2KB84WTiTnlx1KdCNASgf6vjyUtvQ4sBseM285EaiJu7RAei1E9GQOVMxURp3FwejbE4TuKYopJ0RB7kO000OvOO0OO2qa0oCQ8ZX6VHDENJkarTfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">2</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=UNwEsdoX1G1cwEoRDhmOeoaG6AqnOO0OOogUJ29VPGETqMFDu9EFbOMKOO0OOpaFuYccvnw7L5z3xt3GjrecEI1qhMd8DNno7p6uJtcGoOcNhTisNHCHLz2NmoKL7CoWq7cOO0OOuQTkjHPUxer5bJ7QtaG8ClWcLzfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">3</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AKMG5cQlOO0OOPOO0OOhRjpIjcQwiIOO0OOyfUEpe8tvbu5Mcua8FtwPK5hO000OzyBf3pPehve3o5otX9g2GpOCEPmO000OhZ3kR8G5PQnTML7nuL1MUHROO0OOnKUFj3XO000OUoCv4h9TLIw02WhlemljWcZ2x17ottu954mqevBXCDfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">4</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=awn4qWs4Hp4bPX1txvw1spjCqvyqInA7THCnc2xOO0OOQx0JsnDS7t2O000O15SY0KkuQ4tKvH00BrLb5LQ479KrxQrUJaewIHyIPQl0T2Q5qGa4mINFbGbE3wiziCcd2hO9kdIBJXiO000OL0WlzgK1aK7JopvBnjfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">5</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=GO000OK6Tc8zO000OZSV2Nx7065inW6TkEway6WLRXlRHg1IOmANkPjMZlxhQoHORM3dsw74O000O48E2aV7m3ziDTko59riO000O0jYWX0qUL9A2JNyvR2j7apKyujzOO0OObkAU1i2EO000OpoHWp8Pt65sreG4yVJ2ZUYTgRnpzfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">6</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=GeRoOO0OOjRJoDDS8h6ZLiuGJKGVl0gnkuizIrDO000OmWpTpOO0OOzPVNxo5HsGmv7WfR0R85lFNgPPui7UFdqevygt7GQ9GQeTpwqahagIULxHEqxRAftPIi5sLO000OPqAK7fSIQWEu7FBfboru4dqsAs1gLzJl9UwDfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">7</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=losBO000OXK1WrOO0OOPXO1GOO5UMSQpdAFojsB22pidr5OyzxNpK18w53CPl6dNZBq0pW94Dk3xdVdwK4wO000Oeedz4JXc8iGSxSO000OPhoxX5XsrVNPkatr1qsm55H6VRJ8BdPGN6aJLNyO000Ov1Spuk04NG3sOwRHxRzfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">8</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=TzVPwuMgioRlLVg58lOO0OONjJzESOyk1LFOO0OOOO0OO3cmXOO0OOHeSNPQb7LRO000OUiS2SVBySL7z3DxlMCaqWyNC9O4OO0OOP4939piSdwo3k6aAJiIFay1T3OO0OOveTSdFg5qLjbNL4TSfnlUZAk9tsSzfCbgKE9BaFnXbECGMjfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">9</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=QJl8INnO000OQ4Fbff5E6u0Tf9ohoOO0OOZFaiNL8AtTSXvKH1cKq6A2e9odLhI2J0Pj2xlqKRfNZLRiHt0e5ZA0tFYM9hCK2qbAzc7I9wO1baHYZF5DcbZWzhDOO0OOpwx3NpR997jm9FQtTpJnOO0OOVVnFd225NNwrTfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">10</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=HyXALsZzKwOO0OOKl8OO0OONFO000OT6KPXwn3sFOqOKyvV9JPY6oXb0VloCO000OAHopFihtlTkLOO0OOe1WzrNnXQZZKSaOO0OOwTmnzL9apBnyOi6vN3LhfqhjTAYvNtswS2r1l33OO0OOwOJpxHIfo8Tyl8yghbx8JFzXwENOfi2qDfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">11</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=Z7pgO8j8kX2jsZlZjW1UUjRL4AAS6307DYbKamH3Z5SpOO0OO1bXMOIKNO000OoaMXDQO000Oe1mSX1RFyXxMDxKJe3LO000OwMmLA5smnshOYhj7nUOTTCUywy3B7YDYiWCYAzSeE8kvadxYQeOO0OOAXUBnszM11f0BU1oTjfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">12</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=PhCtTfml7NS4ea8owLNATvWETLl2vk16KwdBD8yvijFV9onDO000OzmOO0OOO000OkHWYdBFtgONO000Oz8PgmOO0OOHt0mcrbVV00YDd7kZTpyrYcXmCs251sbvOO0OOK0j3Delon9jUOzBO000OPm2eyfR4cvl4gatcsEQbIZmaEkTWzfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">13</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=OXZtw2jk2FTnZmDt3MvOt1bGLJKNrv7I6Ql8lknrA1yjL2RmapbQPfiYnxOO0OOaEmGq2PBnIZJ55QO000OqmkIS1bv5mpBm8VEkqs9SUOO0OOI5WdWgum2j6pVIZl6rXROO0OOIvEO000O5rbCM3dTxc1UdEcwDtvUpj3UdRjfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">14</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=gzIOO0OOHtEXdGsbOO0OONrO000OdwTcXI4NO8Msyfp3EMxLQKXAOO0OOtUdybPwOO0OOXVJibRGxDT99jO000OBSf5FT6XbvJT5hQdo1TS8c3qwKCQRO000OjNBSsq2OO0OOFWY6tGC0oeK6BZnvmY9OO0OOcVtOO0OOOlNJ8IA2ZrEiZaIzuUZhHXp0zfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">15</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=VJNyO000O4d5wAHKeFJOO000Og4ucV96lz35ukFLbC6BnzH7uO000OnAlO000OtvP0t9Z9Xk8U662CEGW6VnUCr89B3a6ktn7N4x5d10nnf3As8QOVSBJFO000OFJMcu5CgL8xKYG6zWoKNH47nN104dDmFM43gT99ltTpduCjfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">16</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=p9fvY7WQvlE7ffrwJgN1SONkhn2fajO000OkJsF7eYCSogpctobo43O000Or9Q2CMw8hqaqEkKlplL6iHxenSOO0OOuO000OO000OdYxsqF0VtvAWmRYMi8F5Rz86cW0EX3Pp4m28H76DPP5rOO0OOgl5TlTeqF6bSADASiZXidDgzfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">17</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=zIge3b6SaTGuG013h8NqmKbMShjGe7jtoWrYnC3tYiHLOeiS4O000OLJetFvevgKECKBPqJ76Mj8OO0OOYT8JfLlTZ69prp1nbTXLGxIuvReRn4RM9hE7DT4r61CaT7A6Z6dSYFp2ubdQCR6oeg9ovywPjkDsTfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">18</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=GQOuiCOrWscgiOzZXGIkmRahVjO000O6Az8r9cOiO000OaMvppOO0OOBUiD48GEs7IsYNyE5rLvzWq3zBOtwrBA0dCdZpLZbte8CUoDO000OVfLJ0q8lgf2GwB14Rx7tza5eNIgRdpgAtrz6Sn78bRoRck57j0j5VftOO0OOzjfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">19</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=C12SeO000OWLg5mUe05hH2QvyFDbs5uAll87v38mrseQMggHQOO0OOMnhJXJrWnTrTE3fNOO0OOksUMxVl6uhwxU4r39zToOO0OOcPMALDA0OSmRlR6bQEilIdS73piIHPf6uOO0OO7mVWVclzeM69BnB4jjwO000OZk39jXIeitsTfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">20</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=KxASgLZGx5J45hmEOO0OOkWU0nWrxex4z25v6O000OZhsDxOiDez2XZ9tedR78K0UGbegweqgVujwzMOO0OOOO0OOWYg5g7obbUgK5Td49rLwTmXXqlPYKA9OO0OOWOO0OOBF4vTXA8sKKW5aujDMLV2e5wdnmEbD4nPxOc8dlZrkjfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">21</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=dzoGOO0OOA7x0dr2Mr72ErO000OA3d7fImxo1gonOO0OOVOXPfVKQzgPKufq1yUBD8bYnL1eOR1Kd2OBK2qzq81NqOGg1lXbOO0OOcYBSWFLBC8Ts6VfgOOO0OO34dP1RtbLsrGDxa6VmurOZj3DO000OtKtmuw11aa9GdGwYoOO0OO5BTfj4KpQXxLkqXWfbXYO000OgbI04zksRO000OqdIQer1aQs7Y2H&type=zhizhu')">22</button>
+            
+        </div>
+        
+        <div class="episodes" id="播放源3" style="display: none;">
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWf7pA8qXkr1hiNhIrYh9O000O83qtxHEmuOO0OOO000OhSPAVlMpyBuqQ0O0O00O0O0&type=ffm3u8')">第01集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWdsOnQoKFLkfk28gVWdwqpkAKYbxVChoGySesz4G2FWjw0O0O00O0O0&type=ffm3u8')">第02集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWd4EfAt6h6nThJLTvUDJRxjAo3OO0OOq8jKRT0cehoLfpPSO000OA0O0O00O0O0&type=ffm3u8')">第03集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWfB5u16RTxaUv5mdHO000OUWdttWPWCqFVLkUsquZkHrIpfyA0O0O00O0O0&type=ffm3u8')">第04集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWeilpwOO0OO6Be2EOO0OORloOpBxW140uBBQNauXhVjtG6NZ9aPow0O0O00O0O0&type=ffm3u8')">第05集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWcKUkHH7N315LQ3jYYp9WRjWYfuLInjU0SpMhp3QWKqzw0O0O00O0O0&type=ffm3u8')">第06集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWeTczO000OZ1COO0OOXyWEH4SR4bUg5yBQ5veO84KnRT32d67oCGg0O0O00O0O0&type=ffm3u8')">第07集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWdQOO0OOlhtjtNZi2DzUXA5blM67IHyf0EJglNTzCJkDHBktw0O0O00O0O0&type=ffm3u8')">第08集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWepBJ3aDRYojayPO000OE4SkpJhuLtw0yIIho4sgT3e3olzuw0O0O00O0O0&type=ffm3u8')">第09集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWe4D9MLN74fqgTKzytCpfKWkK0LesaMhtcetMQ0Mq9PFQ0O0O00O0O0&type=ffm3u8')">第10集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWfrI4e8CBqhxd5QRInrkVebYzceJFIz5eHJuIvpE5Y9iQ0O0O00O0O0&type=ffm3u8')">第11集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWcEK0nixRYJQk5UghxbwDMxN6Fl0B1de5w9yWtsAUK00A0O0O00O0O0&type=ffm3u8')">第12集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWebExkY5LJVhxoWD2HcFB5oWYfuLInjU0SpMhp3QWKqzw0O0O00O0O0&type=ffm3u8')">第13集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWetqjo0Lc4ppwI0J4apt08LLDEdLY3ETQ5EjksIO000ObcAYg0O0O00O0O0&type=ffm3u8')">第14集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWcrJmf9TGJhj4uAaEOAc1OBhO2Dxo4Kbfsk7J17SgFEJA0O0O00O0O0&type=ffm3u8')">第15集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWey9xc6QOO0OOlcbPjOKSJ7nUU1mR92ffqJV0DKekQB6GGNxQ0O0O00O0O0&type=ffm3u8')">第16集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWezbLlaVsAJmDVbxxgAl0dANxvJ0wf4lWdD05liVO000OGG9g0O0O00O0O0&type=ffm3u8')">第17集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWeXnTbDYM5feG8YjWpJ8cNyRG5yJFKCUdRXU4vn6QWrEA0O0O00O0O0&type=ffm3u8')">第18集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWfE6jwrGGO000OthGjaLmprSlBUpM62mSeO92pOO0OOXTRC090qtQ0O0O00O0O0&type=ffm3u8')">第19集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWdhHjYlkkdhsSKKRKBDAQUvyMO000Oh44qPkoPTbkkBUrMEVg0O0O00O0O0&type=ffm3u8')">第20集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWc00SzOO0OOcNKkULciOwQLQfYbmR92ffqJV0DKekQB6GGNxQ0O0O00O0O0&type=ffm3u8')">第21集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=AGIOO0OOWYGxWuekoVTGVhc6huvX9GZUxDQUUYv9SNi6uWeAkZ4UqmyYEjFGQUavcpf9feaLS4XhCkJi1ihRncs1IA0O0O00O0O0&type=ffm3u8')">第22集</button>
+            
+        </div>
+        
+        <div class="episodes" id="播放源4" style="display: none;">
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtMqRc4dmnQsLlCP8R02qOoPiYAeRQZhnwNQUNV1dUJZeGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第01集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtMqRc4dmnQsLlCP8R02qOoOeMOO0OOeQUe5C8T5BDO000ORKO1ARGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第02集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtMqRc4dmnQsLlCP8R02qOoPhMlaOzgtwDHxVCl9t7sclGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第03集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtH3OO0OO5HLf2jpQ4JBlSSnUs20FfhUNJjmay1KB3zsO8Zd6GfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第04集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtH3OO0OO5HLf2jpQ4JBlSSnUs22I5GrWD3REV9a82vIHRUCnGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第05集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtAzKIRW52WgbujFWSK1fLOTeCa2gd1HZ2BO0NWx0t6QyGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第06集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtAQT8ZKNECKg4y7banvn4r3RAeoOy7lorhn2V1O000O0Si8TGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第07集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtJhuaZpoX651CNYjhJh7ac4D1gdKUQC5WjinO000OrW1TO000OY1GfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第08集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtK3o7UwTRWgMKIJWOP2NJvl2QoYFO000OhrA02O000OZHOO0OO9krdQlGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第09集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtLmy4pzJTOO0OOd04ZulrqD42kvkPLWO000OprHrXHllFOO0OOzZwoedGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第10集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtAe1aE99WnOKLUZldn5GYgOVRh0umemFlMeZVgeFVbenGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第11集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=fpstyv6ezKXSAmLRMZPO000OLO000OB04g2d7JU4CPql8f1yQv2K97cpaQZ2iO000OlgsEjyZtWKJZO000OPzGqGmOoHOO0OO5NgEOO0OOheO000OA0O0O00O0O0&type=lzm3u8')">第12集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtBfdVSrzWnrB3nxTfaeOO0OOsqqaca8hCua0wOO0OOJva1BRkl60GfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第13集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtAIijbo5JvLn7tKO000Ow9al5TFnZMbfSqgHM6SeOO0OOXJRynvXGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第14集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtFW8SYo7BgsYwLS6Hmc4wO000OlDV2quHHp8NXXz2JO1Wc2nGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第15集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtDf9NxNp7Y1fdOO0OOSaL04cLO000O0bex0XajljyhmRyftOO0OOzWLiGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第16集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtD7IFRIlr0K2hbZZUT4EFnouHqe67hWjTgxdSOvO000O0FynGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第17集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtBTBOO0OOFWOO0OOhpf27ZDt25xkfNO000Oyw8BqwQ9dsBlacEknJTucGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第18集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtBTBOO0OOFWOO0OOhpf27ZDt25xkfNO000OpDtDjyNHT7MQpY542qzWFGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第19集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtBTBOO0OOFWOO0OOhpf27ZDt25xkfNO000OI1OO0OOB5HsrxO9S2atOO0OOVfzfoGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第20集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtBTBOO0OOFWOO0OOhpf27ZDt25xkfN8env6GtaCVyZiEjOfLwLVxGfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第21集</button>
+            
+            <button class="episode-btn" onclick="playVideo('http://api.yongfan99.com:81/content.php?vid=LzdsN1xHvlGOO0OOjzhv3b3BtBTBOO0OOFWOO0OOhpf27ZDt25xkfN97V2GsWoIO000OmFynMJA2V3V0GfHR2enHarcHM3BxC9Tk2A0O0O00O0O0&type=lzm3u8')">第22集</button>
+            
+        </div>
+        
+
+    </div>
+
+    <script>
+        function showSource(sourceName) {
+            document.querySelectorAll('.episodes').forEach(div => div.style.display = 'none');
+            document.getElementById(sourceName).style.display = 'grid';
+            document.querySelectorAll('.source-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function playVideo(url) {
+            const player = document.getElementById('player');
+            player.src = url;
+            player.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 默认显示第一个源
+        window.onload = () => {
+            const firstTab = document.querySelector('.source-tab');
+            if (firstTab) firstTab.click();
+        };
+
+        // 横竖屏适配
+        window.addEventListener("resize", () => {
+            const player = document.getElementById('player');
+            player.style.height = player.offsetWidth * 9 / 16 + 'px';
+        });
+    </script>
+</body>
+
+</html>
