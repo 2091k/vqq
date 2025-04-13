@@ -248,29 +248,47 @@ function loadVideos(type) {
     fetch(`https://vqqadmin.2091k.cn/?type=${type}&page=1`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); // 在控制台打印返回的JSON数据，便于调试
+            console.log('返回的 JSON 数据:', data); // 打印返回的数据
+
             const episodesContainer = document.getElementById(type);
             episodesContainer.innerHTML = ''; // 清空现有内容
             
+            if (data.length === 0) {
+                episodesContainer.innerHTML = '<p>没有找到相关内容</p>';
+                return; // 如果没有数据，直接显示提示并返回
+            }
+
             data.forEach(video => {
                 const episodeDiv = document.createElement('div');
                 episodeDiv.classList.add('episode');
                 episodeDiv.dataset.name = video.title;
 
-                // 检查是否有有效的图片链接，如果没有则使用默认图片
-                const imgSrc = video.img || 'https://via.placeholder.com/150'; // 如果没有封面图则显示一个占位图
+                // 如果没有封面图，使用默认图像
+                const imgSrc = video.img || 'https://via.placeholder.com/150'; // 默认占位图
                 
-                episodeDiv.innerHTML = `
-                    <a href="${video.path}">
-                        <img src="${imgSrc}" alt="${video.title} 封面">
-                        <div class="video-name">${video.title}</div>
-                    </a>
+                // 处理空路径情况
+                const videoPath = video.path ? video.path : '#'; // 如果没有路径，设置为 "#" 作为占位
+                
+                // 构造标题和封面图
+                const titleLink = document.createElement('a');
+                titleLink.href = videoPath;
+                titleLink.innerHTML = `
+                    <img src="${imgSrc}" alt="${video.title} 封面" style="width: 150px; height: 150px;">
+                    <div class="video-name">${video.title}</div>
                 `;
+                
+                episodeDiv.appendChild(titleLink);
                 episodesContainer.appendChild(episodeDiv);
             });
         })
-        .catch(error => console.error('获取视频数据时出错:', error));
+        .catch(error => {
+            console.error('获取视频数据时出错:', error);
+            const episodesContainer = document.getElementById(type);
+            episodesContainer.innerHTML = '<p>加载视频数据失败，请稍后再试。</p>';
+        });
 }
+
+
 
 
         window.onload = () => {
