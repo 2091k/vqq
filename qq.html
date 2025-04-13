@@ -189,7 +189,7 @@
         <h1 class="title">魏无羡影院</h1>
         <button class="search-button" onclick="openSearchModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </svg>
         </button>
     </div>
@@ -201,16 +201,26 @@
 
     <div class="container">
         <div class="source-tabs">
-            <button class="source-tab" onclick="showSource('电视剧')">电视剧</button>
-            <button class="source-tab" onclick="showSource('电影')">电影</button>
+            <button class="source-tab" onclick="showSource('电影')">电影 (9)</button>
+            <button class="source-tab" onclick="showSource('电视剧')">电视剧 (2)</button>
         </div>
 
-        <div class="episodes" id="电视剧">
-            <!-- 动态加载的电视剧内容 -->
-        </div>
-
-        <div class="episodes" id="电影" style="display: none;">
-            <!-- 动态加载的电影内容 -->
+        <div class="episodes" id="电影" style="display: none;"></div>
+        <div class="episodes" id="电视剧" style="display: none;">
+            <div class="episode" data-name="棋士">
+                <a href="./电视剧/棋士.html">
+                    <img src="https://t14.baidu.com/it/u=981326159,3823569966&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=4075e761b713dd40a7dfec5cfb9bff17"
+                        alt="棋士 封面">
+                    <div class="video-name">棋士</div>
+                </a>
+            </div>
+            <div class="episode" data-name="雁回时">
+                <a href="./电视剧/雁回时.html">
+                    <img src="https://t14.baidu.com/it/u=902888965,1164929054&fm=58&app=83&size=w931&n=0&f=JPEG&fmt=auto?sec=1744563600&t=f92c677ee0c5b3651defb02104de604c"
+                        alt="雁回时 封面">
+                    <div class="video-name">雁回时</div>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -220,6 +230,9 @@
             document.getElementById(sourceName).style.display = 'grid';
             document.querySelectorAll('.source-tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
+            if (sourceName === '电影') {
+                loadMovies();
+            }
         }
 
         function openSearchModal() {
@@ -244,62 +257,45 @@
             closeSearchModal();
         }
 
-function loadVideos(type) {
-    fetch(`https://vqqadmin.2091k.cn/?type=${type}&page=1`)
-        .then(response => response.json())
-        .then(data => {
-            console.log('返回的 JSON 数据:', data); // 打印返回的数据
+        async function loadMovies() {
+            const url = 'https://vqqadmin.2091k.cn/?type=电影&page=1';
+            const movieContainer = document.getElementById('电影');
+            try {
+                const response = await fetch(url);
+                const movies = await response.json();
+                movieContainer.innerHTML = '';
+                movies.forEach(movie => {
+                    const episodeDiv = document.createElement('div');
+                    episodeDiv.className = 'episode';
+                    episodeDiv.dataset.name = movie.title;
 
-            const episodesContainer = document.getElementById(type);
-            episodesContainer.innerHTML = ''; // 清空现有内容
-            
-            if (data.length === 0) {
-                episodesContainer.innerHTML = '<p>没有找到相关内容</p>';
-                return; // 如果没有数据，直接显示提示并返回
+                    const link = document.createElement('a');
+                    link.href = movie.path;
+
+                    const img = document.createElement('img');
+                    img.src = movie.img || 'https://picsum.photos/200/300';
+                    img.alt = `${movie.title} 封面`;
+
+                    const videoNameDiv = document.createElement('div');
+                    videoNameDiv.className = 'video-name';
+                    videoNameDiv.textContent = movie.title;
+
+                    link.appendChild(img);
+                    link.appendChild(videoNameDiv);
+                    episodeDiv.appendChild(link);
+                    movieContainer.appendChild(episodeDiv);
+                });
+            } catch (error) {
+                console.error('加载电影数据失败:', error);
             }
+        }
 
-            data.forEach(video => {
-                const episodeDiv = document.createElement('div');
-                episodeDiv.classList.add('episode');
-                episodeDiv.dataset.name = video.title;
-
-                // 如果没有封面图，使用默认图像
-                const imgSrc = video.img || 'https://via.placeholder.com/150'; // 默认占位图
-                
-                // 处理空路径情况
-                const videoPath = video.path ? video.path : '#'; // 如果没有路径，设置为 "#" 作为占位
-                
-                // 构造标题和封面图
-                const titleLink = document.createElement('a');
-                titleLink.href = videoPath;
-                titleLink.innerHTML = `
-                    <img src="${imgSrc}" alt="${video.title} 封面" style="width: 150px; height: 150px;">
-                    <div class="video-name">${video.title}</div>
-                `;
-                
-                episodeDiv.appendChild(titleLink);
-                episodesContainer.appendChild(episodeDiv);
-            });
-        })
-        .catch(error => {
-            console.error('获取视频数据时出错:', error);
-            const episodesContainer = document.getElementById(type);
-            episodesContainer.innerHTML = '<p>加载视频数据失败，请稍后再试。</p>';
-        });
-}
-
-
-
-
+        // 默认显示第一个源
         window.onload = () => {
             const firstTab = document.querySelector('.source-tab');
             if (firstTab) firstTab.click();
         };
-
-        // 默认加载电视剧和电影
-        loadVideos('电视剧');
-        loadVideos('电影');
     </script>
 </body>
 
-</html>
+</html>    
