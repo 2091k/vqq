@@ -244,27 +244,34 @@
             closeSearchModal();
         }
 
-        function loadVideos(type) {
-            fetch(`https://vqqadmin.2091k.cn/?type=${type}&page=1`)
-                .then(response => response.json())
-                .then(data => {
-                    const episodesContainer = document.getElementById(type);
-                    episodesContainer.innerHTML = ''; // 清空现有内容
-                    data.forEach(video => {
-                        const episodeDiv = document.createElement('div');
-                        episodeDiv.classList.add('episode');
-                        episodeDiv.dataset.name = video.title;
-                        episodeDiv.innerHTML = `
-                            <a href="${video.path}">
-                                <img src="${video.img}" alt="${video.title} 封面">
-                                <div class="video-name">${video.title}</div>
-                            </a>
-                        `;
-                        episodesContainer.appendChild(episodeDiv);
-                    });
-                })
-                .catch(error => console.error('Error fetching videos:', error));
-        }
+function loadVideos(type) {
+    fetch(`https://vqqadmin.2091k.cn/?type=${type}&page=1`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // 在控制台打印返回的JSON数据，便于调试
+            const episodesContainer = document.getElementById(type);
+            episodesContainer.innerHTML = ''; // 清空现有内容
+            
+            data.forEach(video => {
+                const episodeDiv = document.createElement('div');
+                episodeDiv.classList.add('episode');
+                episodeDiv.dataset.name = video.title;
+
+                // 检查是否有有效的图片链接，如果没有则使用默认图片
+                const imgSrc = video.img || 'https://via.placeholder.com/150'; // 如果没有封面图则显示一个占位图
+                
+                episodeDiv.innerHTML = `
+                    <a href="${video.path}">
+                        <img src="${imgSrc}" alt="${video.title} 封面">
+                        <div class="video-name">${video.title}</div>
+                    </a>
+                `;
+                episodesContainer.appendChild(episodeDiv);
+            });
+        })
+        .catch(error => console.error('获取视频数据时出错:', error));
+}
+
 
         window.onload = () => {
             const firstTab = document.querySelector('.source-tab');
