@@ -135,28 +135,18 @@
             }
         }
     </style>
-     <script>
+    <script>
         // 初始化播放器
-function initPlayer() {
-    try {
-        // 优先从sessionStorage获取
-        let playerData = JSON.parse(sessionStorage.getItem('playerData'));
+        function initPlayer() {
+            try {
+                // 从 sessionStorage 获取数据
+                const playerData = JSON.parse(sessionStorage.getItem('playerData'));
 
-        // 移动端回退方案：从URL参数获取
-        if (!playerData) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tempKey = urlParams.get('tempKey');
-            if (tempKey && window[tempKey]) {
-                playerData = window[tempKey];
-                console.log('从临时对象恢复数据');
-            }
-        }
-
-        if (!playerData) {
-            alert('请从主页选择视频播放');
-            window.location.href = 'index.html';
-            return;
-        }
+                if (!playerData) {
+                    alert('请从主页选择视频播放');
+                    window.location.href = 'index.html';
+                    return;
+                }
 
                 // 设置页面标题
                 document.title = `${playerData.title} - 魏无羡影院`;
@@ -196,115 +186,79 @@ function initPlayer() {
                     episodesContainer.appendChild(episodesDiv);
                 });
 
-                // 默认显示第一个源
+                // 默认显示第一个播放源的剧集
                 if (playerData.playFrom.length > 0) {
-                    showSource(playerData.playFrom[0]);
-                    tabsContainer.firstChild.classList.add('active');
-                    document.querySelector('.episode-btn').click();
+                    const firstSource = playerData.playFrom[0];
+                    const firstTab = tabsContainer.querySelector('.source-tab');
+                    firstTab.classList.add('active');
+                    const firstEpisodes = document.getElementById(firstSource);
+                    firstEpisodes.style.display = 'grid';
+
+                    // 播放第一个剧集
+                    const firstEpisodeBtn = firstEpisodes.querySelector('.episode-btn');
+                    playVideo(playerData.playUrl[0][0].url, firstEpisodeBtn);
                 }
+
             } catch (error) {
-                alert(`初始化播放器失败: ${error.message}`);
-                console.error('初始化播放器时出错:', error);
+                alert(`播放初始化失败: ${error.message}`);
                 window.location.href = 'index.html';
             }
         }
 
-        function showSource(sourceName) {
-            document.querySelectorAll('.episodes').forEach(div => {
-                div.style.display = div.id === sourceName ? 'grid' : 'none';
-            });
-            document.querySelectorAll('.source-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.textContent.includes(sourceName));
-            });
+        // 显示指定播放源的剧集
+        function showSource(source) {
+            const tabs = document.querySelectorAll('.source-tab');
+            const episodes = document.querySelectorAll('.episodes');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            episodes.forEach(ep => ep.style.display = 'none');
+
+            const selectedTab = Array.from(tabs).find(tab => tab.textContent.includes(source));
+            selectedTab.classList.add('active');
+
+            const selectedEpisodes = document.getElementById(source);
+            selectedEpisodes.style.display = 'grid';
+
+            // 播放第一个剧集
+            const firstEpisodeBtn = selectedEpisodes.querySelector('.episode-btn');
+            playVideo(selectedEpisodes.dataset.playUrls[0].url, firstEpisodeBtn);
         }
 
+        // 播放视频
         function playVideo(url, btn) {
             const iframe = document.getElementById('video-iframe');
             iframe.src = url;
 
-            document.querySelectorAll('.episode-btn').forEach(b => {
-                b.classList.remove('active');
-            });
+            const allEpisodeBtns = document.querySelectorAll('.episode-btn');
+            allEpisodeBtns.forEach(btn => btn.classList.remove('active'));
             btn.classList.add('active');
         }
 
         // 返回主页
         function goBack() {
-            window.history.back();
+            window.location.href = 'index.html';
         }
 
-        // 初始化
-        window.onload = initPlayer;
-		
+        // 页面加载完成后初始化播放器
+        window.addEventListener('DOMContentLoaded', initPlayer);
     </script>
 </head>
 
 <body>
-    <header class="header">
-        <button onclick="history.back()">返回</button>
+    <div class="header">
+        <button class="back-btn" onclick="goBack">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#ffffff" />
+            </svg>
+        </button>
         <h1 class="title"></h1>
-    </header>
+    </div>
     <div class="container">
-        <div id="player-container"><iframe id="video-iframe" allowfullscreen></iframe></div>
+        <div id="player-container">
+            <iframe id="video-iframe" src=""></iframe>
+        </div>
         <div class="source-tabs"></div>
     </div>
-
-    <script>
-        function initPlayer() {
-            let raw = null;
-            try {
-                raw = localStorage.getItem('playerData');
-            } catch (e) {
-                console.warn('localStorage 读取失败:', e);
-            }
-            if (!raw) {
-                alert('请从主页选择视频播放');
-                return window.location.href = './index.html';
-            }
-            const data = JSON.parse(raw);
-
-            document.title = `${data.title} - 魏无羡影院`;
-            document.querySelector('.title').textContent = data.title;
-
-            // 生成选项卡和剧集按钮
-            data.playFrom.forEach((src, i) => {
-                const tab = document.createElement('button');
-                tab.className = 'source-tab';
-                tab.textContent = `${src} (${data.playUrl[i].length})`;
-                tab.onclick = () => showSource(src);
-                document.querySelector('.source-tabs').appendChild(tab);
-
-                const ech = document.createElement('div');
-                ech.className = 'episodes'; ech.id = src; ech.style.display = 'none';
-                data.playUrl[i].forEach((ep, idx) => {
-                    const btn = document.createElement('button');
-                    btn.textContent = ep.name;
-                    btn.onclick = () => playVideo(ep.url, btn);
-                    if (idx === 0) btn.classList.add('active');
-                    ech.appendChild(btn);
-                });
-                document.querySelector('.container').appendChild(ech);
-            });
-
-            if (data.playFrom.length) {
-                showSource(data.playFrom[0]);
-                document.querySelector('.source-tab').classList.add('active');
-                document.querySelector('.episodes button').click();
-            }
-        }
-
-        function showSource(name) {
-            document.querySelectorAll('.episodes').forEach(d => d.style.display = d.id === name ? 'grid' : 'none');
-            document.querySelectorAll('.source-tab').forEach(t => t.classList.toggle('active', t.textContent.includes(name)));
-        }
-
-        function playVideo(url, btn) {
-            document.getElementById('video-iframe').src = url;
-            document.querySelectorAll('.episodes button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        window.onload = initPlayer;
-    </script>
 </body>
-</html>
+
+</html>    
