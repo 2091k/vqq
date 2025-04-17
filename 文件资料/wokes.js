@@ -18,7 +18,6 @@ async function handleRequest(request) {
     });
   }
 
-  // 搜索视频ID
   const searchUrl = BASE_URL + '/search.php';
   const form = new URLSearchParams();
   form.set('searchword', keyword);
@@ -31,13 +30,30 @@ async function handleRequest(request) {
     },
     body: form.toString()
   });
+
   const searchHtml = await searchResp.text();
 
+  // 提取所有视频 ID
   const ids = [...searchHtml.matchAll(/href=\"\/view\/(\d+)\.html\"/g)].map(m => m[1]);
   const uniqueIds = Array.from(new Set(ids));
+
+  // 无ID情况直接返回空数据
+  if (uniqueIds.length === 0) {
+    return new Response(JSON.stringify({
+      code: 1,
+      msg: '没有找到相关数据',
+      page: 1,
+      pagecount: 1,
+      limit: '20',
+      total: 0,
+      list: []
+    }, null, 2), {
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+    });
+  }
+
   const vodList = [];
 
-  // 按顺序爬取每个视频详情
   for (const vid of uniqueIds) {
     const item = await crawlDetail(vid);
     if (item) vodList.push(item);
@@ -64,7 +80,6 @@ async function crawlDetail(videoId) {
   if (!resp.ok) return null;
   const html = await resp.text();
 
-  // 提取标题
   let title = '未知剧集';
   const ti = html.match(/<title>([\s\S]*?)<\/title>/);
   if (ti) {
@@ -73,11 +88,9 @@ async function crawlDetail(videoId) {
     title = extracted.replace(/电视剧|电影|动漫/g, '').trim();
   }
 
-  // 提取封面
   const pic = html.match(/data-original=\"([^\"]+)\"/);
   const vodPic = pic ? pic[1] : '';
 
-  // 提取来源和剧集列表
   const sources = {};
   const RE_UL = /<ul[^>]*class=["'][^"']*nav-tabs[^"']*["'][^>]*>([\s\S]*?)<\/ul>/;
   const RE_LI = /<li[^>]*>[\s\S]*?<a[^>]*href=["']#([^"']+)["'][^>]*>([^<]+)<\/a>[\s\S]*?<\/li>/g;
