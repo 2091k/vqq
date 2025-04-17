@@ -251,15 +251,22 @@ function initPlayer() {
 
     <script>
         function initPlayer() {
-            const raw = sessionStorage.getItem('playerData');
+            let raw = null;
+            try {
+                raw = localStorage.getItem('playerData');
+            } catch (e) {
+                console.warn('localStorage 读取失败:', e);
+            }
             if (!raw) {
                 alert('请从主页选择视频播放');
-                return window.location.href = 'index.html';
+                return window.location.href = './index.html';
             }
             const data = JSON.parse(raw);
+
             document.title = `${data.title} - 魏无羡影院`;
             document.querySelector('.title').textContent = data.title;
 
+            // 生成选项卡和剧集按钮
             data.playFrom.forEach((src, i) => {
                 const tab = document.createElement('button');
                 tab.className = 'source-tab';
