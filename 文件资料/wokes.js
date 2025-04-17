@@ -129,13 +129,16 @@ async function crawlDetail(videoId) {
           }
       }
 
+      const vodPlayFrom = Object.keys(sources).join('|');
+      const vodPlayUrl = Object.values(sources)
+         .map(list => list.map(ep => `${ep.name}$${ep.url}`).join('|'))
+         .join('$$$');
+
       return {
           vod_id: videoId,
           vod_name: title,
-          vod_play_from: Object.keys(sources).join('|'),
-          vod_play_url: Object.values(sources)
-            .map(list => list.map(ep => `${ep.name}$${ep.url}`).join('|'))
-            .join('$$$'),
+          vod_play_from: vodPlayFrom,
+          vod_play_url: vodPlayUrl,
           vod_pic: vodPic
       };
   } catch (error) {
