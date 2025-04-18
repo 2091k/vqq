@@ -323,7 +323,7 @@
         // 修复2：增强的fetch函数
         async function fetchData(type) {
             try {
-                const url = encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
+                const url = encodeURIComponent(`https://vqqadmin.2091k.cn/?type=${type}&page=1`);
                 const res = await fetch(API_BASE + url);
                 
                 if (!res.ok) throw new Error(`请求失败: ${res.status}`);
