@@ -273,8 +273,6 @@
             })();
         </script>
     </script>
-	    <!-- 引入 LZString 用于 URL 参数压缩/解压 -->
-    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
 </head>
 
 <body>
@@ -582,7 +580,7 @@ function renderSearchResults(results) {
     `;
 }
 
-        // 核心：点击搜索结果后传递数据
+        // —— 下面这一段替换为 localStorage + URL key 方案 —— 
         function navigateToPlayer(name, playFrom, playUrl, pic) {
             try {
                 const data = {
@@ -596,20 +594,19 @@ function renderSearchResults(results) {
                     ),
                     cover: decodeURIComponent(pic)
                 };
-                
-                // 1. 存储到 localStorage，保证页面重载后仍可读取
-                localStorage.setItem('playerData', JSON.stringify(data));
 
-                // 2. 压缩数据到 URL 参数，保证跳转时带上数据
-                const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(data));
-                window.location.href = `player.html?data=${compressed}`;
+                // 生成唯一 key
+                const storageKey = 'playerData_' + Date.now();
+                // 持久化到 localStorage
+                localStorage.setItem(storageKey, JSON.stringify(data));
+                // 带上 key 跳转
+                window.location.href = `player.html?key=${storageKey}`;
             } catch (error) {
                 showError(`跳转播放失败: ${error.message}`);
                 console.error(error);
             }
         }
 
-        // 取消多余的 </script> 嵌套
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
