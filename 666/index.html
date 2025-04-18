@@ -11,6 +11,28 @@
             --bg-color: #2d3436;
             --text-color: #ffffff;
         }
+	/* —— 新增 Spinner 样式 —— */
+    .spinner-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(45,52,54,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 6px solid rgba(255,255,255,0.3);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
         * {
             box-sizing: border-box;
@@ -314,12 +336,23 @@
         </div>
         <!-- 动态内容将插入到这里 -->
     </div>
+	  <!-- 新增：Spinner 遮罩 -->
+  <div class="spinner-overlay" id="spinner-overlay">
+    <div class="spinner"></div>
+  </div>
 
     <script>
          // 修复1：使用可靠的CORS代理
-        const API_BASE = 'http://jasu.2091k.cn/';
+        const API_BASE = 'https://jasu.2091k.cn/';
         let currentData = [];
-
+		
+    // 新增辅助函数
+    function showSpinner() {
+      document.getElementById('spinner-overlay').style.display = 'flex';
+    }
+    function hideSpinner() {
+      document.getElementById('spinner-overlay').style.display = 'none';
+    }
         // 修复2：增强的fetch函数
         async function fetchData(type) {
             try {
@@ -535,26 +568,34 @@ document.addEventListener('keydown', (e) => {
         window.addEventListener('DOMContentLoaded', init);
 		
 		
-		// 更新后的搜索功能
-async function searchVideos() {
-    const keyword = document.getElementById('search-input').value.trim();
-    if (!keyword) return showError('请输入搜索内容');
-    
-    try {
+    // 修改后的搜索函数
+    async function searchVideos() {
+      const keyword = document.getElementById('search-input').value.trim();
+      if (!keyword) {
+        showError('请输入搜索内容');
+        return;
+      }
+
+      showSpinner();
+      try {
         const apiUrl = `https://jasu.2091k.cn/https://newtv.2091k.cn/?keyword=${encodeURIComponent(keyword)}`;
         const res = await fetch(apiUrl);
         if (!res.ok) throw new Error(`请求失败: ${res.status}`);
         const data = await res.json();
-        
         if (data.code !== 1) throw new Error(data.msg || '搜索失败');
-        if (!data.list || !data.list.length) return showError('没有找到相关内容');
-
-        renderSearchResults(data.list);
-        closeSearchModal();
-    } catch (error) {
+        if (!data.list || !data.list.length) {
+          showError('没有找到相关内容');
+        } else {
+          renderSearchResults(data.list);
+          closeSearchModal();
+        }
+      } catch (error) {
         showError(`搜索失败: ${error.message}`);
+        console.error(error);
+      } finally {
+        hideSpinner();
+      }
     }
-}
 
 // 在搜索功能代码中添加点击处理
 function renderSearchResults(results) {
