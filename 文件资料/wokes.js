@@ -104,10 +104,10 @@ async function crawlDetail(videoId) {
       while ((liMatch = tabLiRegex.exec(ulContent))) {
         const tabId = liMatch[1];
         const sourceName = liMatch[2].trim();
-
         const divBlockRegex = new RegExp(`<div[^>]*id=["']${tabId}["'][^>]*>([\\s\\S]*?)<\\/div>`);
         const divMatch = html.match(divBlockRegex);
 
+        const episodes = [];
         if (divMatch) {
           const blockHtml = divMatch[1];
           const playlistMatch = blockHtml.match(/<ul[^>]*class=["'][^"']*playlist[^"']*["'][^>]*>([\s\S]*?)<\/ul>/);
@@ -115,28 +115,24 @@ async function crawlDetail(videoId) {
             const listHtml = playlistMatch[1];
             const episodeRegex = /<a[^>]*href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/g;
             let epMatch;
-            const episodes = [];
-
             while ((epMatch = episodeRegex.exec(listHtml))) {
               const epPath = epMatch[1];
               const epName = epMatch[2].trim();
               const realUrl = await extractRealUrl(epPath);
-              if (realUrl) {
-                episodes.push({ name: epName, url: realUrl });
-              }
-            }
-
-            if (episodes.length > 0) {
-              sources[sourceName] = episodes;
+              episodes.push({
+                name: epName,
+                url: realUrl || null
+              });
             }
           }
         }
+        sources[sourceName] = episodes;
       }
     }
 
     const vodPlayFrom = Object.keys(sources).join('|');
     const vodPlayUrl = Object.values(sources)
-      .map(list => list.map(ep => `${ep.name}$${ep.url}`).join('|'))
+      .map(list => list.map(ep => `${ep.name}$${ep.url || ''}`).join('|'))
       .join('$$$');
 
     return {
@@ -144,7 +140,8 @@ async function crawlDetail(videoId) {
       vod_name: title,
       vod_play_from: vodPlayFrom,
       vod_play_url: vodPlayUrl,
-      vod_pic: vodPic
+      vod_pic: vodPic,
+  
     };
   } catch (err) {
     return null;
@@ -153,11 +150,14 @@ async function crawlDetail(videoId) {
 
 async function extractRealUrl(path) {
   try {
-    const resp = await fetch(BASE_URL + path, { headers: DEFAULT_HEADERS });
+    const fullUrl = path.startsWith('http') ? path : BASE_URL + path;
+    const resp = await fetch(fullUrl, { headers: DEFAULT_HEADERS });
     if (!resp.ok) return null;
     const text = await resp.text();
     const match = text.match(/<div id=["']playbox["'][\s\S]*?<iframe[^>]+src=["']([^"']+)["']/);
-    return match ? match[1] : null;
+    if (!match) return null;
+    const src = match[1];
+    return src.startsWith('http') ? src : BASE_URL + src;
   } catch (err) {
     return null;
   }
