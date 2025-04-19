@@ -1,16 +1,35 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>魏无羡影院 - 在线视频播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<script src="js/config.js"></script>
     <style>
         :root {
             --primary-color: #ff6b6b;
             --bg-color: #2d3436;
             --text-color: #ffffff;
         }
+		/* —— 顶部分类 Tab —— */
+.category-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+.category-tab {
+  padding: 8px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+.category-tab.active {
+  background: var(--primary-color);
+}
 	/* —— 新增 Spinner 样式 —— */
     .spinner-overlay {
       position: fixed;
@@ -282,26 +301,73 @@
                 overflow-x: visible;
             }
         }
+		/* 公告遮罩层 */
+.notice-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    z-index: 1500;
+    display: none;
+}
+
+/* 公告弹窗 */
+.notice-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(255 255 255 / 19%);
+    backdrop-filter: blur(15px);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    z-index: 1501;
+    display: none;
+    text-align: center;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 0.5s ease;
+}
+
+.notice-modal h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.notice-modal p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.notice-modal button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px;
+    background: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.notice-modal button:hover {
+    background: #ff4c4c;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -60%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
     </style>
     <link rel="icon" href="https://v.qq.com/favicon.ico">
-    <script>
-        <script>
-            var _hmt = _hmt || [];
-            (function() {
-                var hm = document.createElement("script");
-                hm.src = "https://hm.baidu.com/hm.js?d69e07b9eec7a81616400c95de2448f4";
-                var s = document.getElementsByTagName("script")[0]; 
-                s.parentNode.insertBefore(hm, s);
-            })();
-        </script>
-    </script>
 </head>
-
 <body>
     <div class="header">
-        <!-- 将 SVG 图标用链接包裹，点击返回主页 -->
-        <a href="#" style="display: flex; align-items: center;">
-            <svg id="custom-logo" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <a href="http://vqq.2091k.cn" style="display:flex;align-items:center;">            <svg id="custom-logo" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
                 <g clip-path="url(#clip0_265_223)">
                     <path d="M6.1225 23.5028C6.801 28.0786 7.61233 31.518 12.9034 29.8054C17.9778 28.1705 22.8601 25.2644 27.1477 21.9701C28.6845 20.6519 31.3638 18.7922 31.4169 16.6075C31.3638 14.4146 28.6845 12.5631 27.1477 11.2429C22.856 7.94851 17.9778 5.04855 12.9034 3.4054C7.61233 1.69695 6.801 5.13848 6.1225 9.71014C5.59523 14.2926 5.59523 18.9204 6.1225 23.5028Z" fill="#0098FF"/>
                     <path d="M1.5054 10.5641C2.0858 7.53743 2.9564 5.34049 6.85775 6.0946C6.52076 7.27918 6.27481 8.48778 6.12203 9.70984C5.59523 14.2926 5.59523 18.9199 6.12203 23.5025C6.27601 24.7244 6.52194 25.9329 6.85775 27.1177C2.95844 27.8718 2.08784 25.6749 1.5054 22.648L1.46452 22.4316L1.38688 21.9943C0.896432 18.4189 0.896432 14.7934 1.38688 11.2181L1.46452 10.7807L1.5054 10.5641Z" fill="#FF8800"/>
@@ -313,343 +379,251 @@
                         <rect width="124" height="126" fill="white" transform="translate(1 2.73779)"/>
                     </clipPath>
                 </defs>
-            </svg>
-        </a>
+            </svg></a>
         <h1 class="title">魏无羡影院</h1>
-        <button class="search-button" onclick="openSearchModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#ffffff"/>
-            </svg>
-        </button>
+        <button class="search-button" onclick="openSearchModal()">🔍</button>
     </div>
 
-	<div class="search-overlay" id="search-overlay" onclick="closeSearchModal()"></div>
-<div class="search-modal" id="search-modal">
-    <input type="text" id="search-input" placeholder="🔍 输入影片名称...">
-    <button onclick="searchVideos()">立即搜索</button>
-</div>
-
-    <div class="container">
-        <div class="source-tabs">
-            <button class="source-tab" data-type="电影" onclick="showSource('电影')">电影 (0)</button>
-            <button class="source-tab" data-type="电视剧" onclick="showSource('电视剧')">电视剧 (0)</button>
-        </div>
-        <!-- 动态内容将插入到这里 -->
+    <div class="search-overlay" id="search-overlay" onclick="closeSearchModal()"></div>
+    <div class="search-modal" id="search-modal">
+        <input type="text" id="search-input" placeholder="🔍 输入影片名称...">
+        <button onclick="performSearch()">立即搜索</button>
     </div>
-	  <!-- 新增：Spinner 遮罩 -->
-  <div class="spinner-overlay" id="spinner-overlay">
-    <div class="spinner"></div>
+
+	
+	<div class="container" id="main-container">
+  <!-- 顶部分类 Tab 挂载点 -->
+  <div class="category-tabs" id="category-tabs"></div>
+  <!-- 列表区挂载点 -->
+  <div id="video-lists"></div>
   </div>
 
+    <div class="spinner-overlay" id="spinner-overlay"><div class="spinner"></div></div>
+
+    <!-- 公告模块（保持不变） -->
+    <div class="notice-overlay" id="noticeOverlay"></div>
+    <div class="notice-modal" id="noticeModal">
+        <h2>📢 公告</h2>
+        <p>本站资源均采集自网络，仅供学习交流，切勿用于商业用途。如有侵权，请及时联系删除。</p>
+        <p>• 添加全网搜索功能</p>
+        <button onclick="closeNotice()">我知道了</button>
+    </div>
+	
     <script>
-         // 修复1：使用可靠的CORS代理
-        const API_BASE = 'https://jasu.2091k.cn/';
-        let currentData = [];
-		
-    // 新增辅助函数
-    function showSpinner() {
-      document.getElementById('spinner-overlay').style.display = 'flex';
-    }
-    function hideSpinner() {
-      document.getElementById('spinner-overlay').style.display = 'none';
-    }
-        // 修复2：增强的fetch函数
-        async function fetchData(type) {
-            try {
-                const url = encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
-                const res = await fetch(API_BASE + url);
-                
-                if (!res.ok) throw new Error(`请求失败: ${res.status}`);
-                
-                const data = await res.json();
-                if (!Array.isArray(data)) throw new Error('无效的API响应格式');
-                
-                return data.map(item => ({
-                    title: item.title || '未知标题',
-                    path: item.path || '#',
-                    img: (item.img || 'https://placehold.co/200x300').replace('http://', 'https://')
-                }));
-            } catch (error) {
-                console.error('数据加载失败:', error);
-                showError(`${type}加载失败: ${error.message}`);
-                return [];
+        // 配置处理
+        const CONFIG = {
+            proxyBase: typeof PROXY_BASE !== 'undefined' ? PROXY_BASE : '',
+            searchApis: SEARCH_API_GROUPS || []
+        };
+
+        // 数据存储
+        let CURRENT_DATA = {};
+
+        // 新增：fetch 并清理反斜杠
+        async function fetchCleanJson(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(res.status);
+            let text = await res.text();
+            // 如果包含反斜杠，就全部去掉
+            if (text.includes('\\')) {
+                text = text.replace(/\\/g, '');
             }
+            return JSON.parse(text);
         }
 
-        // 修复3：完整的错误处理
+        function showSpinner() {
+            document.getElementById('spinner-overlay').style.display = 'flex';
+        }
+        function hideSpinner() {
+            document.getElementById('spinner-overlay').style.display = 'none';
+        }
         function showError(msg) {
-            const existing = document.querySelector('.error-message');
-            if (existing) existing.remove();
-            
-            const div = document.createElement('div');
-            div.className = 'error-message';
-            div.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #ff6b6b;
-                padding: 10px 20px;
-                border-radius: 5px;
-                z-index: 9999;
-                animation: fadeIn 0.3s;
-            `;
-            div.textContent = msg;
-            document.body.appendChild(div);
-            
-            setTimeout(() => div.remove(), 3000);
+            alert(msg);
         }
 
-        // 修复4：安全的DOM操作
-        function updateTabCount(type, count) {
-            document.querySelectorAll('.source-tab').forEach(tab => {
-                if (tab.dataset.type === type) {
-                    tab.textContent = `${type} (${count})`;
-                }
-            });
-        }
-
-    function renderEpisodes(data, type) {
-        const container = document.querySelector('.container');
-        let episodesDiv = document.getElementById(type);
-        
-        if (!episodesDiv) {
-            episodesDiv = document.createElement('div');
-            episodesDiv.className = 'episodes';
-            episodesDiv.id = type;
-            container.appendChild(episodesDiv);
-        }
-
-        episodesDiv.innerHTML = data.length > 0 ? 
-            data.map(item => `
-                <div class="episode" data-name="${item.title}">
-                    <a href="${item.path}" onclick="handleVideoClick(event, '${item.path}')">
-                        <img src="${item.img}" alt="${item.title}"
-                             onerror="this.src='https://placehold.co/200x300?text=封面加载失败'">
-                        <div class="video-name">${item.title}</div>
-                    </a>
-                </div>
-            `).join('') : 
-            '<div class="no-data" style="text-align:center;width:100%;padding:20px;">暂无内容</div>';
-        
-        // 只显示当前分类内容
-        episodesDiv.style.display = 'grid';
-    }
-
-        // 修复5：统一的事件监听
-    function initEventListeners() {
-        document.querySelectorAll('.source-tab').forEach(tab => {
-            tab.addEventListener('click', async function() {
-                if (this.classList.contains('active')) return;
-                
-                // 隐藏所有内容
-                document.querySelectorAll('.episodes').forEach(div => {
-                    div.style.display = 'none';
-                });
-                
-                document.querySelectorAll('.source-tab').forEach(t => {
-                    t.classList.remove('active');
-                });
-                this.classList.add('active');
-                
-                const type = this.dataset.type;
-                const episodesDiv = document.getElementById(type);
-                
-                // 如果内容未加载则获取数据
-                if (!episodesDiv || episodesDiv.children.length === 0) {
-                    const data = await fetchData(type);
-                    renderEpisodes(data, type);
-                } else {
-                    episodesDiv.style.display = 'grid';
-                }
-            });
-        });
-
-            // 搜索相关事件
-            document.getElementById('search-input').addEventListener('keypress', e => {
-                if (e.key === 'Enter') searchVideos();
-            });
-        }
-
-    // 修复初始化函数（确保电视剧内容隐藏）
-    async function init() {
-        try {
-            initEventListeners();
-            
-            const [movieData, tvData] = await Promise.all([
-                fetchData('电影'),
-                fetchData('电视剧')
-            ]);
-            
-            updateTabCount('电影', movieData.length);
-            updateTabCount('电视剧', tvData.length);
-            
-            renderEpisodes(movieData, '电影');
-            renderEpisodes(tvData, '电视剧'); // 提前渲染但隐藏
-            
-            const movieTab = document.querySelector('[data-type="电影"]');
-            movieTab.classList.add('active');
-            
-            document.getElementById('电视剧').style.display = 'none';
-        } catch (error) {
-            showError(`初始化失败: ${error.message}`);
-        }
-    }
-
-    // 新增视频点击处理
-    function handleVideoClick(event, path) {
-        event.preventDefault();
-        window.location.href = path; // 在当前页面跳转
-    }
-	
-    // 修复1：增强搜索功能
-    function searchVideos() {
-        const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
-        const allEpisodes = document.querySelectorAll('.episode');
-        let activeCategory = null;
-
-        if (!searchTerm) {
-            // 清空搜索时恢复显示
-            allEpisodes.forEach(episode => episode.style.display = 'block');
-            document.querySelectorAll('.episodes').forEach(div => div.style.display = 'none');
-            document.querySelector('.source-tab.active')?.click();
-            return;
-        }
-
-        // 查找匹配项并确定分类
-        allEpisodes.forEach(episode => {
-            const name = episode.dataset.name.toLowerCase();
-            const match = name.includes(searchTerm);
-            if (match) {
-                activeCategory = episode.closest('.episodes').id;
-            }
-            episode.style.display = match ? 'block' : 'none';
-        });
-
-        // 自动切换分类
-        if (activeCategory) {
-            const targetTab = document.querySelector(`[data-type="${activeCategory}"]`);
-            if (targetTab && !targetTab.classList.contains('active')) {
-                targetTab.click();
-            }
-        }
-
-        closeSearchModal();
-    }
-	
-	    // 修复2：点击外部关闭搜索框
-    document.addEventListener('click', (e) => {
-        const searchModal = document.getElementById('search-modal');
-        const searchButton = document.querySelector('.search-button');
-        
-        if (!searchModal.contains(e.target) && !searchButton.contains(e.target)) {
-            closeSearchModal();
-        }
-    });
-
-        // 修复8：定义缺失的函数
-function openSearchModal() {
-    document.getElementById('search-overlay').style.display = 'block';
-    document.getElementById('search-modal').classList.add('active');
-    setTimeout(() => document.getElementById('search-input').focus(), 100);
-}
-
-function closeSearchModal() {
-    document.getElementById('search-overlay').style.display = 'none';
-    document.getElementById('search-modal').classList.remove('active');
-}
-
-// 添加ESC键关闭功能
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeSearchModal();
-});
-
-        // 安全启动
-        window.addEventListener('DOMContentLoaded', init);
-		
-		
-    // 修改后的搜索函数
-    async function searchVideos() {
-      const keyword = document.getElementById('search-input').value.trim();
-      if (!keyword) {
-        showError('请输入搜索内容');
-        return;
-      }
-
-      showSpinner();
-      try {
-        const apiUrl = `https://jasu.2091k.cn/https://newtv.2091k.cn/?keyword=${encodeURIComponent(keyword)}`;
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error(`请求失败: ${res.status}`);
-        const data = await res.json();
-        if (data.code !== 1) throw new Error(data.msg || '搜索失败');
-        if (!data.list || !data.list.length) {
-          showError('没有找到相关内容');
-        } else {
-          renderSearchResults(data.list);
-          closeSearchModal();
-        }
-      } catch (error) {
-        showError(`搜索失败: ${error.message}`);
-        console.error(error);
-      } finally {
-        hideSpinner();
-      }
-    }
-
-// 在搜索功能代码中添加点击处理
-function renderSearchResults(results) {
-    const container = document.querySelector('.container');
-    container.innerHTML = `
-        <div class="episodes" id="search-results">
-            ${results.map(item => `
-                <div class="episode">
-                    <a href="javascript:void(0)" 
-                       onclick="navigateToPlayer(
-                           '${encodeURIComponent(item.vod_name)}',
-                           '${encodeURIComponent(item.vod_play_from)}',
-                           '${encodeURIComponent(item.vod_play_url)}',
-                           '${encodeURIComponent(item.vod_pic)}'
-                       )">
-                        <img src="${item.vod_pic}" 
-                             onerror="this.src='https://placehold.co/200x300?text=封面加载失败'">
-                        <div class="video-name">${item.vod_name}</div>
-                    </a>
-                </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-        // —— 下面这一段替换为 localStorage + URL key 方案 —— 
-        function navigateToPlayer(name, playFrom, playUrl, pic) {
+        // 初始化加载
+        async function init() {
+            showSpinner();
             try {
-                const data = {
-                    title: decodeURIComponent(name),
-                    playFrom: decodeURIComponent(playFrom).split('|'),
-                    playUrl: decodeURIComponent(playUrl).split('$$$').map(g =>
-                        g.split('|').map(p => {
-                            const [n, u] = p.split('$');
-                            return { name: n, url: u };
-                        })
-                    ),
-                    cover: decodeURIComponent(pic)
+                const [movies, tvs] = await Promise.all([
+                    fetchHomeData('电影'),
+                    fetchHomeData('电视剧')
+                ]);
+                CURRENT_DATA = { '电影': movies, '电视剧': tvs };
+                renderCategoryTabs();
+                switchCategory('电影');
+            } catch (e) {
+                showError('首页加载失败: ' + e.message);
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        async function fetchHomeData(type) {
+            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`https://vqqadmin.2091k.cn/?type=${type}&page=1`);
+            const res = await fetch(proxyUrl);
+            if (!res.ok) throw new Error(res.status);
+            const data = await res.json();
+            return data.map(item => ({
+                vod_id: item.id,
+                vod_name: item.title,
+                vod_pic: item.img.replace('http://', 'https://'),
+                vod_feature: item.path
+            }));
+        }
+
+        function renderCategoryTabs() {
+            const tabs = document.getElementById('category-tabs');
+            tabs.innerHTML = Object.keys(CURRENT_DATA).map(type => `
+                <button class="category-tab" onclick="switchCategory('${type}')">
+                    ${type} (${CURRENT_DATA[type].length})
+                </button>
+            `).join('');
+        }
+
+        function switchCategory(type) {
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(type));
+            });
+            renderVideoList(CURRENT_DATA[type]);
+        }
+
+        function renderVideoList(list) {
+            const container = document.getElementById('video-lists');
+            container.innerHTML = `
+                <div class="episodes">
+                    ${list.map(item => `
+                        <div class="episode" onclick="handleVideoClick('${item.vod_feature}')">
+                            <img src="${item.vod_pic}" onerror="this.src='https://placehold.co/195x260?text=封面加载失败'">
+                            <div class="video-name">${item.vod_name}</div>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
+
+        // —— 修改后的 搜索功能 —— 
+        async function performSearch() {
+            const keyword = document.getElementById('search-input').value.trim();
+            if (!keyword) return showError('请输入搜索内容');
+            
+            showSpinner();
+            try {
+                let result = null;
+                for (const [index, api] of CONFIG.searchApis.entries()) {
+                    try {
+                        let apiUrl = api.keywordApi + encodeURIComponent(keyword);
+                        if (CONFIG.proxyBase) {
+                            apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                        }
+                        const data = await fetchCleanJson(apiUrl);
+                        if (data.list?.length) {
+                            result = { data: data.list, apiIndex: index };
+                            break;
+                        }
+                    } catch (e) {
+                        console.warn(`[${api.name}] 搜索失败:`, e);
+                    }
+                }
+
+                if (!result) return showError('没有找到相关内容');
+                renderSearchResults(result.data, result.apiIndex);
+            } catch (e) {
+                showError('搜索失败: ' + e.message);
+            } finally {
+                hideSpinner();
+                closeSearchModal();
+            }
+        }
+
+        function renderSearchResults(list, apiIndex) {
+            const container = document.getElementById('main-container');
+            container.innerHTML = `
+                <div class="episodes">
+                    ${list.map(item => `
+                        <div class="episode" onclick="loadVideoDetail(${item.vod_id}, ${apiIndex})">
+                            <img src="${item.vod_pic}" onerror="this.src='https://placehold.co/195x260?text=封面加载失败'">
+                            <div class="video-name">${item.vod_name}</div>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
+
+        // —— 修改后的 详情加载 —— 
+        async function loadVideoDetail(id, apiIndex) {
+            showSpinner();
+            try {
+                const api = CONFIG.searchApis[apiIndex];
+                if (!api) throw new Error('无效的API配置');
+                let apiUrl = api.idApi + id;
+                if (CONFIG.proxyBase) {
+                    apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                }
+                
+                const data = await fetchCleanJson(apiUrl);
+                const info = data.list?.[0];
+                if (!info) throw new Error('没有找到视频详情');
+
+                // 再次清理 play_from/play_url 字段
+                const cleanFrom = (info.vod_play_from || '').replace(/\\/g, '').split('|');
+                const rawUrl = (info.vod_play_url || '').replace(/\\/g, '');
+                const playUrl = rawUrl.split('$$$').map(group =>
+                    group.split('|').map(item => {
+                        const [name, url] = item.split('$');
+                        return { name, url };
+                    })
+                );
+
+                const playerData = {
+                    title: info.vod_name,
+                    playFrom: cleanFrom,
+                    playUrl: playUrl,
+                    cover: info.vod_pic
                 };
 
-                // 生成唯一 key
-                const storageKey = 'playerData_' + Date.now();
-                // 持久化到 localStorage
-                localStorage.setItem(storageKey, JSON.stringify(data));
-                // 带上 key 跳转
-                window.location.href = `player.html?key=${storageKey}`;
-            } catch (error) {
-                showError(`跳转播放失败: ${error.message}`);
-                console.error(error);
+                const storageKey = 'player_' + Date.now();
+                localStorage.setItem(storageKey, JSON.stringify(playerData));
+				// ←—— 这里将原来的 window.location.href 改成 window.open
+				const playerUrl = `player.html?key=${storageKey}`;
+                window.open(playerUrl, '_blank');
+            } catch (e) {
+                showError('加载失败: ' + e.message);
+            } finally {
+                hideSpinner();
             }
         }
 
+        // 其他辅助函数保持不变……
+        function handleVideoClick(path) {
+            const basePath = window.location.pathname
+                .replace(/\/index\.html$/i, '')
+                .replace(/\/$/, '');
+            window.location.href = basePath + '/' + path.replace(/^\//, '');
+        }
+        function openSearchModal() {
+            document.getElementById('search-overlay').style.display = 'block';
+            document.getElementById('search-modal').classList.add('active');
+            setTimeout(() => document.getElementById('search-input').focus(), 100);
+        }
+        function closeSearchModal() {
+            document.getElementById('search-overlay').style.display = 'none';
+            document.getElementById('search-modal').classList.remove('active');
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeSearchModal();
+        });
+        document.getElementById('search-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') performSearch();
+        });
         window.addEventListener('DOMContentLoaded', init);
+
+        function closeNotice() {
+            document.getElementById('noticeOverlay').style.display = 'none';
+            document.getElementById('noticeModal').style.display = 'none';
+        }
+        window.addEventListener('load', () => {
+            document.getElementById('noticeOverlay').style.display = 'block';
+            document.getElementById('noticeModal').style.display = 'block';
+        });
     </script>
 </body>
-
 </html>
