@@ -4,7 +4,25 @@
     <meta charset="utf-8">
     <title>魏无羡影院 - 在线视频播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-	<script src="http://vqq.2091k.cn/js/config.js"></script>
+    <script>
+        // 跨域加速地址（可选，若 API 无需代理可忽略）
+        var PROXY_BASE = 'https://cors.zme.ink/';
+        //var PROXY_BASE = 'http://jasu.2091k.cn/';
+
+        // 搜索 API 组列表（每组包含关键词搜索和 ID 详情 API）
+        var SEARCH_API_GROUPS = [
+          {
+            name: '主站',
+            keywordApi: 'https://newtv.2091k.cn/?keyword=',
+            idApi: 'https://newtv.2091k.cn/?id='
+          },
+        //  {
+        //    name: '备用站', 
+        //    keywordApi: 'http://66tyyszy.com/api.php/provide/vod/?ac=videolist&wd=',
+        //    idApi: 'http://66tyyszy.com/api.php/provide/vod/?ac=detail&ids='
+        //  }
+        ];
+    </script>
     <style>
         :root {
             --primary-color: #ff6b6b;
