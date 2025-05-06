@@ -460,7 +460,7 @@
         }
 
         async function fetchHomeData(type) {
-            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`https://vqqadmin.2091k.cn/?type=${type}&page=1`);
+            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
             const res = await fetch(proxyUrl);
             if (!res.ok) throw new Error(res.status);
             const data = await res.json();
