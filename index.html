@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script>
         // 跨域加速地址（可选，若 API 无需代理可忽略）
-        var PROXY_BASE = 'https://cors.zme.ink/';
-        //var PROXY_BASE = 'http://jasu.2091k.cn/';
+        //var PROXY_BASE = 'https://cors.zme.ink/';
+        var PROXY_BASE = 'http://jasu.2091k.cn/';
 
         // 搜索 API 组列表（每组包含关键词搜索和 ID 详情 API）
         var SEARCH_API_GROUPS = [
           {
             name: '主站',
-            keywordApi: 'https://newtv.2091k.cn/?keyword=',
-            idApi: 'https://newtv.2091k.cn/?id='
+            keywordApi: 'http://newtv.2091k.cn/?keyword=',
+            idApi: 'http://newtv.2091k.cn/?id='
           },
         //  {
         //    name: '备用站', 
@@ -478,7 +478,7 @@
         }
 
         async function fetchHomeData(type) {
-            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`https://vqqadmin.2091k.cn/?type=${type}&page=1`);
+            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
             const res = await fetch(proxyUrl);
             if (!res.ok) throw new Error(res.status);
             const data = await res.json();
