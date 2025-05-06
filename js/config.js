@@ -6,12 +6,12 @@ var PROXY_BASE = 'https://cors.zme.ink/';
 var SEARCH_API_GROUPS = [
   {
     name: '主站',
-    keywordApi: 'https://newtv.2091k.cn/?keyword=',
-    idApi: 'https://newtv.2091k.cn/?id='
+    keywordApi: 'http://newtv.2091k.cn/?keyword=',
+    idApi: 'http://newtv.2091k.cn/?id='
   },
   {
     name: '备用站', 
-    keywordApi: 'https://66tyyszy.com/api.php/provide/vod/?ac=videolist&wd=',
-    idApi: 'https://66tyyszy.com/api.php/provide/vod/?ac=detail&ids='
+    keywordApi: 'http://66tyyszy.com/api.php/provide/vod/?ac=videolist&wd=',
+    idApi: 'http://66tyyszy.com/api.php/provide/vod/?ac=detail&ids='
   }
 ];
