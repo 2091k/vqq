@@ -7,8 +7,8 @@ var PROXY_BASE = 'https://cors.zme.ink/';
 var SEARCH_API_GROUPS = [
   {
     name: '主站',
-    keywordApi: 'http://newtv.2091k.cn/?keyword=',
-    idApi: 'http://newtv.2091k.cn/?id='
+    keywordApi: 'https://newtv.2091k.cn/?keyword=',
+    idApi: 'https://newtv.2091k.cn/?id='
   },
 //  {
 //    name: '备用站', 
