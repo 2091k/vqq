@@ -7,7 +7,7 @@
     <script>
         // 跨域加速地址（可选，若 API 无需代理可忽略）
         //var PROXY_BASE = 'https://cors.zme.ink/';
-        var PROXY_BASE = 'https://jasu.2091k.cn/';
+        var PROXY_BASE = 'http://jasu.2091k.cn/';
 
         // 搜索 API 组列表（每组包含关键词搜索和 ID 详情 API）
         var SEARCH_API_GROUPS = [
@@ -478,7 +478,7 @@
         }
 
         async function fetchHomeData(type) {
-            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`https://vqqadmin.2091k.cn/?type=${type}&page=1`);
+            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
             const res = await fetch(proxyUrl);
             if (!res.ok) throw new Error(res.status);
             const data = await res.json();
@@ -512,7 +512,7 @@
                 <div class="episodes">
                     ${list.map(item => `
                         <div class="episode" onclick="handleVideoClick('${item.vod_feature}')">
-                            <img src="${item.vod_pic}" onerror="this.src='https://placehold.co/195x260?text=封面加载失败'">
+                            <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
                             <div class="video-name">${item.vod_name}</div>
                         </div>
                     `).join('')}
@@ -559,7 +559,7 @@
                 <div class="episodes">
                     ${list.map(item => `
                         <div class="episode" onclick="loadVideoDetail(${item.vod_id}, ${apiIndex})">
-                            <img src="${item.vod_pic}" onerror="this.src='https://placehold.co/195x260?text=封面加载失败'">
+                            <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
                             <div class="video-name">${item.vod_name}</div>
                         </div>
                     `).join('')}
@@ -645,3 +645,4 @@
     </script>
 </body>
 </html>
+
