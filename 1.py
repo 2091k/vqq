@@ -237,12 +237,12 @@ template = Template('''
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?d69e07b9eec7a81616400c95de2448f4";
+  hm.src = "http://hm.baidu.com/hm.js?d69e07b9eec7a81616400c95de2448f4";
   var s = document.getElementsByTagName("script")[0]; 
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
-    <link rel="icon" href="https://v.qq.com/favicon.ico">
+    <link rel="icon" href="http://v.qq.com/favicon.ico">
 </head>
 
 <body>
@@ -322,5 +322,6 @@ save_path = os.path.join(current_dir, file_name)
 
 with open(save_path, 'w', encoding='utf-8') as f:
     f.write(template.render(title=title, sources=sources))
+
 
 print(f"播放页面已生成: {save_path}")    
