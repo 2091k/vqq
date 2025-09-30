@@ -514,10 +514,10 @@ function renderVideoList(list) {
                 // 处理标题中的单引号转义，避免语法错误
                 const escapedTitle = item.vod_name.replace(/'/g, "\\'");
                 return `
-                <div class="episode" onclick="searchByTitle('${escapedTitle}')">
-                    <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
-                    <div class="video-name">${item.vod_name}</div>
-                </div>
+<div class="episode" onclick="loadVideoDetail(${item.vod_id}, 0)">
+    <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+    <div class="video-name">${item.vod_name}</div>
+</div>
                 `;
             }).join('')}
         </div>`;
