@@ -514,10 +514,10 @@ function renderVideoList(list) {
                 // 处理标题中的单引号转义，避免语法错误
                 const escapedTitle = item.vod_name.replace(/'/g, "\\'");
                 return `
-<div class="episode" onclick="loadVideoDetail(${item.vod_id}, 0)">
-    <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
-    <div class="video-name">${item.vod_name}</div>
-</div>
+                <div class="episode" onclick="searchByTitle('${escapedTitle}')">
+                    <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+                    <div class="video-name">${item.vod_name}</div>
+                </div>
                 `;
             }).join('')}
         </div>`;
@@ -559,13 +559,11 @@ function renderVideoList(list) {
 
 // 点击视频条目后，触发对应标题的搜索
 function searchByTitle(title) {
-    // 1. 获取搜索输入框元素
-    const searchInput = document.getElementById('search-input');
-    // 2. 将输入框的值设为当前视频标题
-    searchInput.value = title;
-    // 3. 调用原搜索函数，执行搜索（与手动点击“立即搜索”效果一致）
-    performSearch();
+    // 拼接参数，带着标题在新标签页打开当前页面
+    const url = window.location.origin + window.location.pathname + '?keyword=' + encodeURIComponent(title);
+    window.open(url, '_blank');
 }
+
 
         function renderSearchResults(list, apiIndex) {
             const container = document.getElementById('main-container');
