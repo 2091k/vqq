@@ -506,18 +506,22 @@
             renderVideoList(CURRENT_DATA[type]);
         }
 
-        function renderVideoList(list) {
-            const container = document.getElementById('video-lists');
-            container.innerHTML = `
-                <div class="episodes">
-                    ${list.map(item => `
-                        <div class="episode" onclick="searchByTitle(${JSON.stringify(item.vod_name)})">
-                            <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
-                            <div class="video-name">${item.vod_name}</div>
-                        </div>
-                    `).join('')}
-                </div>`;
-        }
+function renderVideoList(list) {
+    const container = document.getElementById('video-lists');
+    container.innerHTML = `
+        <div class="episodes">
+            ${list.map(item => {
+                // 处理标题中的单引号转义，避免语法错误
+                const escapedTitle = item.vod_name.replace(/'/g, "\\'");
+                return `
+                <div class="episode" onclick="searchByTitle('${escapedTitle}')">
+                    <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+                    <div class="video-name">${item.vod_name}</div>
+                </div>
+                `;
+            }).join('')}
+        </div>`;
+}
 
         // —— 修改后的 搜索功能 —— 
         async function performSearch() {
@@ -553,13 +557,13 @@
             }
         }
 
-      // 添加在现有脚本中（比如在performSearch函数后面）
+// 点击视频条目后，触发对应标题的搜索
 function searchByTitle(title) {
-    // 打开搜索弹窗
-    openSearchModal();
-    // 填充搜索框内容为影片标题
-    document.getElementById('search-input').value = title;
-    // 执行搜索
+    // 1. 获取搜索输入框元素
+    const searchInput = document.getElementById('search-input');
+    // 2. 将输入框的值设为当前视频标题
+    searchInput.value = title;
+    // 3. 调用原搜索函数，执行搜索（与手动点击“立即搜索”效果一致）
     performSearch();
 }
 
@@ -621,12 +625,7 @@ function searchByTitle(title) {
         }
 
         // 其他辅助函数保持不变……
-        function handleVideoClick(path) {
-            const basePath = window.location.pathname
-                .replace(/\/index\.html$/i, '')
-                .replace(/\/$/, '');
-            window.location.href = basePath + '/' + path.replace(/^\//, '');
-        }
+
         function openSearchModal() {
             document.getElementById('search-overlay').style.display = 'block';
             document.getElementById('search-modal').classList.add('active');
