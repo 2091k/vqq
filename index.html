@@ -511,10 +511,9 @@ function renderVideoList(list) {
     container.innerHTML = `
         <div class="episodes">
             ${list.map(item => {
-                // 处理标题中的单引号转义，避免语法错误
                 const escapedTitle = item.vod_name.replace(/'/g, "\\'");
                 return `
-                <div class="episode" onclick="searchByTitle('${escapedTitle}')">
+                <div class="episode" onclick="searchByTitleInNewTab('${escapedTitle}')">
                     <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
                     <div class="video-name">${item.vod_name}</div>
                 </div>
@@ -559,11 +558,206 @@ function renderVideoList(list) {
 
 // 点击视频条目后，触发对应标题的搜索
 function searchByTitle(title) {
-    // 拼接参数，带着标题在新标签页打开当前页面
-    const url = window.location.origin + window.location.pathname + '?keyword=' + encodeURIComponent(title);
-    window.open(url, '_blank');
+    // 1. 获取搜索输入框元素
+    const searchInput = document.getElementById('search-input');
+    // 2. 将输入框的值设为当前视频标题
+    searchInput.value = title;
+    // 3. 调用原搜索函数，执行搜索（与手动点击“立即搜索”效果一致）
+    performSearch();
 }
 
+		function searchByTitleInNewTab(title) {
+    // 创建一个隐藏的iframe来执行搜索，避免被浏览器拦截
+    const tempInput = document.createElement('input');
+    tempInput.style.position = 'fixed';
+    tempInput.style.left = '-1000px';
+    tempInput.value = title;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    
+    // 打开新标签页并执行搜索
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+        // 设置新窗口的内容，包含搜索逻辑
+        newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>搜索中...</title>
+                <style>
+                    body { 
+                        background: #2d3436; 
+                        color: white; 
+                        display: flex; 
+                        justify-content: center; 
+                        align-items: center; 
+                        height: 100vh; 
+                        margin: 0; 
+                        font-family: Arial, sans-serif;
+                    }
+                    .loading { text-align: center; }
+                    .spinner {
+                        width: 40px;
+                        height: 40px;
+                        border: 4px solid rgba(255,255,255,0.3);
+                        border-top-color: #ff6b6b;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                        margin: 0 auto 20px;
+                    }
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>正在搜索: ${title}</div>
+                </div>
+                <script>
+                    // 复制原页面的配置和函数
+                    const CONFIG = ${JSON.stringify(CONFIG)};
+                    
+                    async function performSearchInNewTab() {
+                        try {
+                            let result = null;
+                            for (const [index, api] of CONFIG.searchApis.entries()) {
+                                try {
+                                    let apiUrl = api.keywordApi + encodeURIComponent("${title}");
+                                    if (CONFIG.proxyBase) {
+                                        apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                                    }
+                                    const response = await fetch(apiUrl);
+                                    let text = await response.text();
+                                    if (text.includes('\\\\')) {
+                                        text = text.replace(/\\\\/g, '');
+                                    }
+                                    const data = JSON.parse(text);
+                                    if (data.list?.length) {
+                                        result = { data: data.list, apiIndex: index };
+                                        break;
+                                    }
+                                } catch (e) {
+                                    console.warn(\`[\${api.name}] 搜索失败:\`, e);
+                                }
+                            }
+
+                            if (result) {
+                                renderSearchResults(result.data, result.apiIndex);
+                            } else {
+                                document.body.innerHTML = '<div style="text-align:center;padding:50px;">没有找到相关内容</div>';
+                            }
+                        } catch (e) {
+                            document.body.innerHTML = '<div style="text-align:center;padding:50px;">搜索失败: ' + e.message + '</div>';
+                        }
+                    }
+
+                    function renderSearchResults(list, apiIndex) {
+                        document.body.innerHTML = \`
+                            <div style="padding:20px;max-width:1200px;margin:0 auto;">
+                                <h2 style="margin-bottom:20px;">搜索结果</h2>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px;">
+                                    \${list.map(item => \`
+                                        <div style="text-align:center;cursor:pointer;" onclick="loadVideoDetail(\${item.vod_id}, \${apiIndex})">
+                                            <img src="\${item.vod_pic}" style="width:100%;border-radius:8px;" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+                                            <div style="margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">\${item.vod_name}</div>
+                                        </div>
+                                    \`).join('')}
+                                </div>
+                            </div>
+                        \`;
+                    }
+
+                    async function loadVideoDetail(id, apiIndex) {
+                        document.body.innerHTML = '<div style="text-align:center;padding:50px;"><div style="spinner"></div><div>加载中...</div></div>';
+                        try {
+                            const api = CONFIG.searchApis[apiIndex];
+                            if (!api) throw new Error('无效的API配置');
+                            let apiUrl = api.idApi + id;
+                            if (CONFIG.proxyBase) {
+                                apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                            }
+                            
+                            const response = await fetch(apiUrl);
+                            let text = await response.text();
+                            if (text.includes('\\\\')) {
+                                text = text.replace(/\\\\/g, '');
+                            }
+                            const data = JSON.parse(text);
+                            const info = data.list?.[0];
+                            if (!info) throw new Error('没有找到视频详情');
+
+                            const cleanFrom = (info.vod_play_from || '').replace(/\\\\/g, '').split('|');
+                            const rawUrl = (info.vod_play_url || '').replace(/\\\\/g, '');
+                            const playUrl = rawUrl.split('\\$\\$\\$').map(group =>
+                                group.split('|').map(item => {
+                                    const [name, url] = item.split('\\$');
+                                    return { name, url };
+                                })
+                            );
+
+                            const playerData = {
+                                title: info.vod_name,
+                                playFrom: cleanFrom,
+                                playUrl: playUrl,
+                                cover: info.vod_pic
+                            };
+
+                            const storageKey = 'player_' + Date.now();
+                            localStorage.setItem(storageKey, JSON.stringify(playerData));
+                            window.location.href = 'player.html?key=' + storageKey;
+                        } catch (e) {
+                            document.body.innerHTML = '<div style="text-align:center;padding:50px;">加载失败: ' + e.message + '</div>';
+                        }
+                    }
+
+                    // 页面加载完成后执行搜索
+                    window.addEventListener('load', performSearchInNewTab);
+                <\/script>
+            </body>
+            </html>
+        `);
+        newWindow.document.close();
+    }
+    
+    // 清理临时元素
+    document.body.removeChild(tempInput);
+}
+
+// —— 修改后的 搜索功能 —— 
+async function performSearch() {
+    const keyword = document.getElementById('search-input').value.trim();
+    if (!keyword) return showError('请输入搜索内容');
+    
+    showSpinner();
+    try {
+        let result = null;
+        for (const [index, api] of CONFIG.searchApis.entries()) {
+            try {
+                let apiUrl = api.keywordApi + encodeURIComponent(keyword);
+                if (CONFIG.proxyBase) {
+                    apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                }
+                const data = await fetchCleanJson(apiUrl);
+                if (data.list?.length) {
+                    result = { data: data.list, apiIndex: index };
+                    break;
+                }
+            } catch (e) {
+                console.warn(`[${api.name}] 搜索失败:`, e);
+            }
+        }
+
+        if (!result) return showError('没有找到相关内容');
+        renderSearchResults(result.data, result.apiIndex);
+    } catch (e) {
+        showError('搜索失败: ' + e.message);
+    } finally {
+        hideSpinner();
+        closeSearchModal();
+    }
+}
 
         function renderSearchResults(list, apiIndex) {
             const container = document.getElementById('main-container');
