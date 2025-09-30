@@ -565,8 +565,9 @@ function searchByTitle(title) {
     // 3. 调用原搜索函数，执行搜索（与手动点击“立即搜索”效果一致）
     performSearch();
 }
-
-		function searchByTitleInNewTab(title) {
+		
+// 在新标签页中搜索 - 适配手机端
+function searchByTitleInNewTab(title) {
     // 创建一个隐藏的iframe来执行搜索，避免被浏览器拦截
     const tempInput = document.createElement('input');
     tempInput.style.position = 'fixed';
@@ -583,19 +584,25 @@ function searchByTitle(title) {
             <!DOCTYPE html>
             <html>
             <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>搜索中...</title>
                 <style>
+                    * {
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding: 0;
+                    }
                     body { 
                         background: #2d3436; 
                         color: white; 
-                        display: flex; 
-                        justify-content: center; 
-                        align-items: center; 
-                        height: 100vh; 
-                        margin: 0; 
                         font-family: Arial, sans-serif;
+                        padding: 0;
+                        margin: 0;
                     }
-                    .loading { text-align: center; }
+                    .loading { 
+                        text-align: center; 
+                        padding: 50px 20px;
+                    }
                     .spinner {
                         width: 40px;
                         height: 40px;
@@ -607,6 +614,109 @@ function searchByTitle(title) {
                     }
                     @keyframes spin {
                         to { transform: rotate(360deg); }
+                    }
+                    
+                    /* 搜索结果容器 */
+                    .results-container {
+                        padding: 15px;
+                        max-width: 1200px;
+                        margin: 0 auto;
+                    }
+                    
+                    .results-title {
+                        font-size: 1.3rem;
+                        margin-bottom: 20px;
+                        text-align: center;
+                        padding: 0 10px;
+                    }
+                    
+                    /* 网格布局 - 响应式 */
+                    .results-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 15px;
+                    }
+                    
+                    /* 平板端 */
+                    @media (min-width: 600px) {
+                        .results-grid {
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 20px;
+                        }
+                        .results-title {
+                            font-size: 1.5rem;
+                            text-align: left;
+                        }
+                    }
+                    
+                    /* 桌面端 */
+                    @media (min-width: 900px) {
+                        .results-grid {
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 25px;
+                        }
+                        .results-container {
+                            padding: 20px;
+                        }
+                    }
+                    
+                    /* 大桌面端 */
+                    @media (min-width: 1200px) {
+                        .results-grid {
+                            grid-template-columns: repeat(5, 1fr);
+                        }
+                    }
+                    
+                    /* 视频项样式 */
+                    .video-item {
+                        text-align: center;
+                        cursor: pointer;
+                        transition: transform 0.3s;
+                    }
+                    
+                    .video-item:hover {
+                        transform: scale(1.03);
+                    }
+                    
+                    .video-image {
+                        width: 100%;
+                        border-radius: 8px;
+                        aspect-ratio: 2/3;
+                        object-fit: cover;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    }
+                    
+                    .video-name {
+                        margin-top: 8px;
+                        font-size: 0.9rem;
+                        line-height: 1.3;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        height: 2.6em;
+                    }
+                    
+                    /* 错误和加载状态 */
+                    .error-container, .loading-container {
+                        text-align: center;
+                        padding: 50px 20px;
+                        font-size: 1.1rem;
+                    }
+                    
+                    .loading-container .spinner {
+                        margin-bottom: 20px;
+                    }
+                    
+                    /* 详情页加载样式 */
+                    .detail-loading {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        text-align: center;
                     }
                 </style>
             </head>
@@ -646,22 +756,22 @@ function searchByTitle(title) {
                             if (result) {
                                 renderSearchResults(result.data, result.apiIndex);
                             } else {
-                                document.body.innerHTML = '<div style="text-align:center;padding:50px;">没有找到相关内容</div>';
+                                document.body.innerHTML = '<div class="error-container">没有找到相关内容</div>';
                             }
                         } catch (e) {
-                            document.body.innerHTML = '<div style="text-align:center;padding:50px;">搜索失败: ' + e.message + '</div>';
+                            document.body.innerHTML = '<div class="error-container">搜索失败: ' + e.message + '</div>';
                         }
                     }
 
                     function renderSearchResults(list, apiIndex) {
                         document.body.innerHTML = \`
-                            <div style="padding:20px;max-width:1200px;margin:0 auto;">
-                                <h2 style="margin-bottom:20px;">搜索结果</h2>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px;">
+                            <div class="results-container">
+                                <h2 class="results-title">搜索结果</h2>
+                                <div class="results-grid">
                                     \${list.map(item => \`
-                                        <div style="text-align:center;cursor:pointer;" onclick="loadVideoDetail(\${item.vod_id}, \${apiIndex})">
-                                            <img src="\${item.vod_pic}" style="width:100%;border-radius:8px;" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
-                                            <div style="margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">\${item.vod_name}</div>
+                                        <div class="video-item" onclick="loadVideoDetail(\${item.vod_id}, \${apiIndex})">
+                                            <img class="video-image" src="\${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+                                            <div class="video-name">\${item.vod_name}</div>
                                         </div>
                                     \`).join('')}
                                 </div>
@@ -670,7 +780,12 @@ function searchByTitle(title) {
                     }
 
                     async function loadVideoDetail(id, apiIndex) {
-                        document.body.innerHTML = '<div style="text-align:center;padding:50px;"><div style="spinner"></div><div>加载中...</div></div>';
+                        document.body.innerHTML = \`
+                            <div class="detail-loading">
+                                <div class="spinner"></div>
+                                <div>加载中...</div>
+                            </div>
+                        \`;
                         try {
                             const api = CONFIG.searchApis[apiIndex];
                             if (!api) throw new Error('无效的API配置');
@@ -708,7 +823,7 @@ function searchByTitle(title) {
                             localStorage.setItem(storageKey, JSON.stringify(playerData));
                             window.location.href = 'player.html?key=' + storageKey;
                         } catch (e) {
-                            document.body.innerHTML = '<div style="text-align:center;padding:50px;">加载失败: ' + e.message + '</div>';
+                            document.body.innerHTML = '<div class="error-container">加载失败: ' + e.message + '</div>';
                         }
                     }
 
