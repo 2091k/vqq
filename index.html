@@ -557,12 +557,14 @@ function renderVideoList(list) {
             }
         }
 
-// 修改：点击条目后在新标签页执行搜索
+// 点击视频条目后，触发对应标题的搜索
 function searchByTitle(title) {
-    // 对标题进行编码，避免特殊字符（如空格、问号）导致URL错误
-    const encodedTitle = encodeURIComponent(title);
-    // 打开新标签页，同时通过URL参数传递搜索关键词（复用当前页面地址）
-    window.open(`${window.location.href}?search=${encodedTitle}`, '_blank');
+    // 1. 获取搜索输入框元素
+    const searchInput = document.getElementById('search-input');
+    // 2. 将输入框的值设为当前视频标题
+    searchInput.value = title;
+    // 3. 调用原搜索函数，执行搜索（与手动点击“立即搜索”效果一致）
+    performSearch();
 }
 
         function renderSearchResults(list, apiIndex) {
@@ -648,23 +650,6 @@ function searchByTitle(title) {
         window.addEventListener('load', () => {
             document.getElementById('noticeOverlay').style.display = 'block';
             document.getElementById('noticeModal').style.display = 'block';
-		window.addEventListener('DOMContentLoaded', () => {
-    // 等待初始化完成后再检测参数
-    init().then(() => {
-        // 解析URL中的参数
-        const urlParams = new URLSearchParams(window.location.search);
-        const searchKeyword = urlParams.get('search');
-        
-        // 如果有搜索参数，自动填充并执行搜索
-        if (searchKeyword) {
-            // 解码URL中的关键词（还原空格、特殊字符）
-            const decodedKeyword = decodeURIComponent(searchKeyword);
-            // 填充到搜索框
-            document.getElementById('search-input').value = decodedKeyword;
-            // 自动执行搜索
-            performSearch();
-        }
-    });
         });
     </script>
 </body>
