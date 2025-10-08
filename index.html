@@ -405,10 +405,9 @@
             try {
                 const [movies, tvs] = await Promise.all([
                     fetchHomeData('电影'),
-                    fetchHomeData('电视剧'),
-                    fetchHomeData('动漫')
+                    fetchHomeData('电视剧')
                 ]);
-                CURRENT_DATA = { '电影': movies, '电视剧': tvs, '动漫': dm };
+                CURRENT_DATA = { '电影': movies, '电视剧': tvs};
                 renderCategoryTabs();
                 switchCategory('电影');
             } catch (e) {
