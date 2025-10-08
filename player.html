@@ -219,9 +219,9 @@
                 const totalEpisodes = Math.max(...episodeCounts); // 取最大值
 
                 // 核心修改2：只保留核心调试信息，去掉请求/成功日志
-                debugEl.innerHTML += `✅ 播放数据：<br>
-                    标题：${playerData.title}<br>
-                    播放源数量：${playerData.playFrom?.length || 0}<br>
+                debugEl.innerHTML += `✅ 播放数据：
+                    标题：${playerData.title}
+                    播放源数量：${playerData.playFrom?.length || 0}
                     集数：${totalEpisodes}<br>`;
 
                 if (!playerData.playFrom || !playerData.playUrl || playerData.playFrom.length === 0) {
