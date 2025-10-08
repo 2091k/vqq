@@ -13,6 +13,18 @@ async function handleRequest(request) {
     const url = new URL(request.url);
     const keyword = url.searchParams.get('keyword');
     const id = url.searchParams.get('id');
+    const episodePath = url.searchParams.get('episodePath'); // 新增：获取单集路径参数
+
+    // 新增：处理单集播放地址请求
+    if (id && episodePath) {
+      const realUrl = await extractRealUrl(episodePath);
+      return new Response(JSON.stringify({
+        code: 1,
+        url: realUrl || null
+      }, null, 2), {
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+      });
+    }
 
     if (id) {
       const detail = await crawlDetail(id);
@@ -162,10 +174,10 @@ async function crawlDetail(videoId) {
             const episodeRegex = /<a[^>]*href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/g;
             let epMatch;
             while ((epMatch = episodeRegex.exec(listHtml))) {
-              const epPath = epMatch[1];
+              const epPath = epMatch[1]; // 只保存路径，不获取实际播放地址
               const epName = epMatch[2].trim();
-              const realUrl = await extractRealUrl(epPath);
-              episodes.push({ name: epName, url: realUrl || null });
+              // 不提前获取播放地址，只保存路径
+              episodes.push({ name: epName, path: epPath });
             }
           }
         }
@@ -173,9 +185,11 @@ async function crawlDetail(videoId) {
       }
     }
 
+    // 保存源名称和对应集数路径
     const vodPlayFrom = Object.keys(sources).join('|');
+    // 存储路径而非实际地址，使用特殊分隔符
     const vodPlayUrl = Object.values(sources)
-      .map(list => list.map(ep => `${ep.name}$${ep.url || ''}`).join('|'))
+      .map(list => list.map(ep => `${ep.name}$${ep.path}`).join('|'))
       .join('$$$');
 
     return {
