@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 样式部分保持不变，无需修改 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魏无羡影院 - 在线播放</title>
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #2d3436;
+            --text-color: #ffffff;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(45, 52, 54, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+        .title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .container {
+            margin-top: 70px;
+            padding: 15px;
+        }
+        #player-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 20px;
+        }
+        #video-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .source-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .source-tab {
+            flex-shrink: 0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .source-tab.active {
+            background: #8b8b8bd9;
+        }
+        .episodes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .episode-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s;
+        }
+        .episode-btn.active {
+            background: #ff6b6b78;
+        }
+        .episode-btn:hover {
+            background: #ff6b6be6;
+        }
+        .debug-info {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+        @media (max-width: 767px) {
+            .episodes {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .episode-btn {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 70px auto 0;
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="icon" href="http://v.qq.com/favicon.ico">
+</head>
+<body>
+    <header class="header">
+        <a href="index.html">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="24" height="24">
+                <path fill="gray" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z" />
+            </svg>
+        </a>
+        <h1 class="title"></h1>
+    </header>
+
+    <div class="container">
+        <div class="debug-info" id="debug-info"></div> <!-- 调试信息 -->
+        <div id="player-container">
+            <iframe id="video-iframe" allowfullscreen></iframe>
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <div class="source-tabs" id="source-tabs"></div>
+    </div>
+
+    <script>
+        // 配置保持与主页面一致
+        const CONFIG = {
+            proxyBase: 'http://jasu.2091k.cn/',
+            searchApis: [
+                {
+                    name: '主站',
+                    keywordApi: 'http://vqqtv.oo.me.eu.org/?keyword=',
+                    idApi: 'http://vqqtv.oo.me.eu.org/?id='
+                }
+            ]
+        };
+
+        let playerData = null;
+        const debugEl = document.getElementById('debug-info');
+        const sourceTabsEl = document.getElementById('source-tabs');
+        const loadingEl = document.getElementById('loading-overlay');
+
+        function initPlayer() {
+            try {
+                const urlParams = new URLSearchParams(location.search);
+                const key = urlParams.get('key');
+                if (!key) throw new Error('缺少播放参数（key）');
+
+                const storedStr = localStorage.getItem(key);
+                if (!storedStr) throw new Error('播放数据已过期或不存在');
+
+                playerData = JSON.parse(storedStr);
+                
+                // 核心修改1：计算总集数（取播放源中集数最多的数量）
+                const episodeCounts = playerData.playUrl.map(list => list?.length || 0);
+                const totalEpisodes = Math.max(...episodeCounts); // 取最大值
+
+                // 核心修改2：只保留核心调试信息，去掉请求/成功日志
+                debugEl.innerHTML += `✅ 播放数据：
+                    标题：${playerData.title}
+                    播放源数量：${playerData.playFrom?.length || 0}
+                    集数：${totalEpisodes}<br>`;
+
+                if (!playerData.playFrom || !playerData.playUrl || playerData.playFrom.length === 0) {
+                    throw new Error('无可用播放源或集数');
+                }
+
+                // 渲染标题和播放源/集数
+                document.title = `${playerData.title} - 魏无羡影院`;
+                document.querySelector('.title').textContent = playerData.title || '未知视频';
+                renderSourcesAndEpisodes();
+
+            } catch (err) {
+                alert(`初始化失败：${err.message}`);
+                debugEl.innerHTML += `❌ 初始化错误：${err.message}<br>`;
+                document.querySelector('.container').innerHTML += `
+                    <div style="text-align: center; padding: 20px; color: #ff6b6b;">
+                        播放失败：${err.message}<br>
+                        <button onclick="window.location.href='index.html'" style="margin-top: 15px; padding: 8px 16px; background: var(--primary-color); border: none; border-radius: 8px; cursor: pointer;">
+                            返回首页
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderSourcesAndEpisodes() {
+            playerData.playFrom.forEach((sourceName, sourceIdx) => {
+                const episodesList = playerData.playUrl[sourceIdx];
+                if (!episodesList || episodesList.length === 0) {
+                    debugEl.innerHTML += `⚠️ 播放源「${sourceName}」无集数，跳过渲染<br>`;
+                    return;
+                }
+
+                // 渲染播放源标签
+                const tabBtn = document.createElement('button');
+                tabBtn.className = 'source-tab' + (sourceIdx === 0 ? ' active' : '');
+                tabBtn.textContent = `${sourceName}（${episodesList.length}集）`;
+                tabBtn.onclick = () => switchSource(sourceName);
+                sourceTabsEl.appendChild(tabBtn);
+
+                // 渲染集数按钮
+                const episodesDiv = document.createElement('div');
+                episodesDiv.className = 'episodes';
+                episodesDiv.id = `source-${sourceName}`;
+                episodesDiv.style.display = sourceIdx === 0 ? 'grid' : 'none';
+
+                episodesList.forEach((ep, epIdx) => {
+                    const epBtn = document.createElement('button');
+                    epBtn.className = 'episode-btn' + (epIdx === 0 ? ' active' : '');
+                    epBtn.textContent = ep.name || `第${epIdx+1}集`;
+                    epBtn.dataset.path = ep.path || '';
+                    epBtn.onclick = () => playEpisode(epBtn);
+                    episodesDiv.appendChild(epBtn);
+                });
+
+                document.querySelector('.container').appendChild(episodesDiv);
+            });
+
+            // 自动播放第一集
+            const firstEpBtn = document.querySelector('.episode-btn');
+            if (firstEpBtn) firstEpBtn.click();
+        }
+
+        function switchSource(sourceName) {
+            document.querySelectorAll('.source-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(sourceName));
+            });
+            document.querySelectorAll('.episodes').forEach(div => {
+                div.style.display = div.id === `source-${sourceName}` ? 'grid' : 'none';
+            });
+        }
+
+        async function playEpisode(epBtn) {
+            const epPath = epBtn.dataset.path;
+            if (!epPath) {
+                alert('集数路径为空，无法播放');
+                return;
+            }
+
+            loadingEl.style.display = 'flex';
+            document.querySelectorAll('.episode-btn').forEach(btn => btn.classList.remove('active'));
+            epBtn.classList.add('active');
+
+            try {
+                // 核心修改3：删除请求和成功的debug日志，只在控制台打印（不显示在页面）
+                const api = CONFIG.searchApis[playerData.apiIndex || 0];
+                const requestUrl = `${api.idApi}${playerData.vodId}&episodePath=${encodeURIComponent(epPath)}`;
+                const finalUrl = CONFIG.proxyBase + encodeURIComponent(requestUrl);
+                console.log('请求单集地址:', finalUrl); // 只在控制台打印，页面不显示
+
+                const resp = await fetch(finalUrl);
+                if (!resp.ok) throw new Error(`请求失败（状态码：${resp.status}）`);
+
+                const data = await resp.json();
+                if (!data.url) throw new Error('后端未返回播放地址');
+
+                document.getElementById('video-iframe').src = data.url;
+                console.log('播放地址获取成功:', data.url); // 只在控制台打印
+
+            } catch (err) {
+                alert(`播放失败：${err.message}`);
+                console.error('播放错误:', err); // 只在控制台打印错误
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('load', initPlayer);
+    </script>
+</body>
+</html>
