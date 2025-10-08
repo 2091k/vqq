@@ -400,22 +400,25 @@
             alert(msg);
         }
 
-        async function init() {
-            showSpinner();
-            try {
-                const [movies, tvs] = await Promise.all([
-                    fetchHomeData('电影'),
-                    fetchHomeData('电视剧')
-                ]);
-                CURRENT_DATA = { '电影': movies, '电视剧': tvs};
-                renderCategoryTabs();
-                switchCategory('电影');
-            } catch (e) {
-                showError('首页加载失败: ' + e.message);
-            } finally {
-                hideSpinner();
-            }
-        }
+async function init() {
+    showSpinner();
+    try {
+        // 1. 新增 fetchHomeData('动漫')，加入Promise.all数组
+        const [movies, tvs, anime] = await Promise.all([
+            fetchHomeData('电影'),
+            fetchHomeData('电视剧'),
+            fetchHomeData('动漫') // 新增：拉取动漫分类数据
+        ]);
+        // 2. CURRENT_DATA 新增 '动漫' 键值对，存储动漫数据
+        CURRENT_DATA = { '电影': movies, '电视剧': tvs, '动漫': anime};
+        renderCategoryTabs();
+        switchCategory('电影');
+    } catch (e) {
+        showError('首页加载失败: ' + e.message);
+    } finally {
+        hideSpinner();
+    }
+}
 
         async function fetchHomeData(type) {
             const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
