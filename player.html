@@ -219,10 +219,10 @@
                 const totalEpisodes = Math.max(...episodeCounts); // 取最大值
 
                 // 核心修改2：只保留核心调试信息，去掉请求/成功日志
-                debugEl.innerHTML += `✅ 读取到播放数据：<br>
+                debugEl.innerHTML += `✅ 播放数据：<br>
                     标题：${playerData.title}<br>
                     播放源数量：${playerData.playFrom?.length || 0}<br>
-                    总集数：${totalEpisodes}（取集数最多的播放源）<br>`;
+                    集数：${totalEpisodes}<br>`;
 
                 if (!playerData.playFrom || !playerData.playUrl || playerData.playFrom.length === 0) {
                     throw new Error('无可用播放源或集数');
