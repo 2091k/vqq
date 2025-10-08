@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>魏无羡影院 - 在线视频播放</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <script>
+        // 跨域加速地址（可选，若 API 无需代理可忽略）
+        //var PROXY_BASE = 'https://cors.zme.ink/';
+        var PROXY_BASE = 'http://jasu.2091k.cn/';
+
+        // 搜索 API 组列表（每组包含关键词搜索和 ID 详情 API）
+        var SEARCH_API_GROUPS = [
+          {
+           name: '主站',
+            keywordApi: 'http://newtv.2091k.cn/?keyword=',
+            idApi: 'http://newtv.2091k.cn/?id='
+          },
+        //  {
+        //    name: '备用站', 
+        //    keywordApi: 'http://cloud.2091k.cn/api/vqq/?keyword=',
+       //     idApi: 'http://cloud.2091k.cn/api/vqq/?id='
+        //  }
+        ];
+    </script>
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #2d3436;
+            --text-color: #ffffff;
+        }
+		/* —— 顶部分类 Tab —— */
+.category-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+.category-tab {
+  padding: 8px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+.category-tab.active {
+  background: var(--primary-color);
+}
+	/* —— 新增 Spinner 样式 —— */
+    .spinner-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(45,52,54,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 6px solid rgba(255,255,255,0.3);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* 固定头部 */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(45, 52, 54, 0.95);
+            padding: 1rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header svg {
+            flex-shrink: 0;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            margin-left: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 搜索按钮 */
+        .search-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+            margin-left: auto;
+        }
+
+        .search-button:hover {
+            color: var(--primary-color);
+        }
+
+        /* 搜索弹窗及毛玻璃效果 */
+    /* 新增遮罩层样式 */
+    .search-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);  /* 减少遮罩层模糊度 */
+        z-index: 998;  /* 层级在弹窗之下 */
+        display: none;
+    }
+
+    /* 修改搜索弹窗样式 */
+    .search-modal {
+        display: none;
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 500px;
+        padding: 30px;
+        border-radius: 20px;
+        background: rgb(45 52 54 / 0%); /* 使用主题背景色 */
+        backdrop-filter: blur(30px); /* 加强弹窗自身模糊 */
+        z-index: 999; /* 确保在遮罩层之上 */
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .search-modal.active {
+        display: block;
+        opacity: 1;
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translate(-50%, -60%);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+
+    .search-modal input {
+        width: 100%;
+        padding: 15px 25px;
+        margin-bottom: 20px;
+        border: none;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #2d3436;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-modal input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .search-modal button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff4747 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .search-modal button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .search-modal button:active {
+        transform: translateY(0);
+    }
+
+        .container {
+            margin-top: 70px;
+            padding: 15px;
+        }
+
+        .source-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .source-tab {
+            flex-shrink: 0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .source-tab.active {
+            background: var(--primary-color);
+        }
+
+        /* 视频列表 */
+        .episodes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 767px) {
+            .episodes {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .episode {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .episode:hover {
+            transform: scale(1.03);
+        }
+
+        .episode a {
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+        }
+
+        .episode img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .episode:hover img {
+            transform: scale(1.05);
+        }
+
+        .episode .video-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 90px auto 0;
+                padding: 20px;
+            }
+
+            .episodes {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .source-tabs {
+                flex-wrap: wrap;
+                overflow-x: visible;
+            }
+        }
+		/* 公告遮罩层 */
+.notice-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    z-index: 1500;
+    display: none;
+}
+
+/* 公告弹窗 */
+.notice-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(255 255 255 / 19%);
+    backdrop-filter: blur(15px);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    z-index: 1501;
+    display: none;
+    text-align: center;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 0.5s ease;
+}
+
+.notice-modal h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.notice-modal p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.notice-modal button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px;
+    background: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.notice-modal button:hover {
+    background: #ff4c4c;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -60%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+    </style>
+    <link rel="icon" href="http://v.qq.com/favicon.ico">
+</head>
+<body>
+    <div class="header">
+        <a href="http://vqq.2091k.cn" style="display:flex;align-items:center;">            <svg id="custom-logo" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <g clip-path="url(#clip0_265_223)">
+                    <path d="M6.1225 23.5028C6.801 28.0786 7.61233 31.518 12.9034 29.8054C17.9778 28.1705 22.8601 25.2644 27.1477 21.9701C28.6845 20.6519 31.3638 18.7922 31.4169 16.6075C31.3638 14.4146 28.6845 12.5631 27.1477 11.2429C22.856 7.94851 17.9778 5.04855 12.9034 3.4054C7.61233 1.69695 6.801 5.13848 6.1225 9.71014C5.59523 14.2926 5.59523 18.9204 6.1225 23.5028Z" fill="#0098FF"/>
+                    <path d="M1.5054 10.5641C2.0858 7.53743 2.9564 5.34049 6.85775 6.0946C6.52076 7.27918 6.27481 8.48778 6.12203 9.70984C5.59523 14.2926 5.59523 18.9199 6.12203 23.5025C6.27601 24.7244 6.52194 25.9329 6.85775 27.1177C2.95844 27.8718 2.08784 25.6749 1.5054 22.648L1.46452 22.4316L1.38688 21.9943C0.896432 18.4189 0.896432 14.7934 1.38688 11.2181L1.46452 10.7807L1.5054 10.5641Z" fill="#FF8800"/>
+                    <path d="M6.85821 6.09277C7.12798 6.14591 7.41409 6.21131 7.72881 6.29714C12.4619 7.57851 17.0213 9.84493 21.0249 12.4179C22.4554 13.4499 24.9569 14.8969 25.0059 16.6094C24.9569 18.322 22.4534 19.7689 21.0249 20.798C17.0213 23.3719 12.4619 25.6404 7.72881 26.9197C7.44221 27.0023 7.15165 27.0706 6.85821 27.1243C6.52143 25.9388 6.27548 24.7295 6.1225 23.5068C5.59523 18.9244 5.59523 14.2966 6.1225 9.71414C6.27562 8.49934 6.5195 7.29761 6.85209 6.11934L6.85821 6.09277Z" fill="#37E700"/>
+                    <path d="M9.65007 12.2585C9.65007 12.2585 9.35986 12.7286 9.35986 16.6156C9.35986 20.5026 9.65007 20.9482 9.65007 20.9482C9.74817 21.4305 9.94027 21.5837 10.4675 21.4611C10.4675 21.4611 11.3381 21.3262 14.8164 19.5564C18.2947 17.7866 18.8751 17.1183 18.8751 17.1183C19.2491 16.7403 19.3493 16.4889 18.8751 16.0965C18.8751 16.0965 17.9187 15.2136 14.8164 13.6053C11.7142 11.9969 10.4675 11.7456 10.4675 11.7456C10.0404 11.6229 9.76452 11.7619 9.65007 12.2585Z" fill="white"/>
+                </g>
+                <defs>
+                    <clipPath id="clip0_265_223">
+                        <rect width="124" height="126" fill="white" transform="translate(1 2.73779)"/>
+                    </clipPath>
+                </defs>
+            </svg></a>
+        <h1 class="title">魏无羡影院</h1>
+        <button class="search-button" onclick="openSearchModal()">🔍</button>
+    </div>
+
+    <div class="search-overlay" id="search-overlay" onclick="closeSearchModal()"></div>
+    <div class="search-modal" id="search-modal">
+        <input type="text" id="search-input" placeholder="🔍 输入影片名称...">
+        <button onclick="performSearch()">立即搜索</button>
+    </div>
+
+	
+	<div class="container" id="main-container">
+  <!-- 顶部分类 Tab 挂载点 -->
+  <div class="category-tabs" id="category-tabs"></div>
+  <!-- 列表区挂载点 -->
+  <div id="video-lists"></div>
+  </div>
+
+    <div class="spinner-overlay" id="spinner-overlay"><div class="spinner"></div></div>
+
+    <!-- 公告模块（保持不变） -->
+    <div class="notice-overlay" id="noticeOverlay"></div>
+    <div class="notice-modal" id="noticeModal">
+        <h2>📢 公告</h2>
+        <p>本站资源均采集自网络，仅供学习交流，切勿用于商业用途。如有侵权，请及时联系删除。</p>
+		<p>• PC端无法正常显示时，浏览器清除缓存关闭后重新打开即可http不带s即可正常</p>
+        <p>• 添加全网搜索功能</p>
+        <button onclick="closeNotice()">我知道了</button>
+    </div>
+	
+    <script>
+        // 配置处理
+        const CONFIG = {
+            proxyBase: typeof PROXY_BASE !== 'undefined' ? PROXY_BASE : '',
+            searchApis: SEARCH_API_GROUPS || []
+        };
+
+        // 数据存储
+        let CURRENT_DATA = {};
+
+        // 新增：fetch 并清理反斜杠
+        async function fetchCleanJson(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(res.status);
+            let text = await res.text();
+            // 如果包含反斜杠，就全部去掉
+            if (text.includes('\\')) {
+                text = text.replace(/\\/g, '');
+            }
+            return JSON.parse(text);
+        }
+
+        function showSpinner() {
+            document.getElementById('spinner-overlay').style.display = 'flex';
+        }
+        function hideSpinner() {
+            document.getElementById('spinner-overlay').style.display = 'none';
+        }
+        function showError(msg) {
+            alert(msg);
+        }
+
+        // 初始化加载
+        async function init() {
+            showSpinner();
+            try {
+                const [movies, tvs] = await Promise.all([
+                    fetchHomeData('电影'),
+                    fetchHomeData('电视剧')
+                ]);
+                CURRENT_DATA = { '电影': movies, '电视剧': tvs };
+                renderCategoryTabs();
+                switchCategory('电影');
+            } catch (e) {
+                showError('首页加载失败: ' + e.message);
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        async function fetchHomeData(type) {
+            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
+            const res = await fetch(proxyUrl);
+            if (!res.ok) throw new Error(res.status);
+            const data = await res.json();
+            return data.map(item => ({
+                vod_id: item.id,
+                vod_name: item.title,
+                vod_pic: item.img.replace('http://', 'https://'),
+                vod_feature: item.path
+            }));
+        }
+
+        function renderCategoryTabs() {
+            const tabs = document.getElementById('category-tabs');
+            tabs.innerHTML = Object.keys(CURRENT_DATA).map(type => `
+                <button class="category-tab" onclick="switchCategory('${type}')">
+                    ${type} (${CURRENT_DATA[type].length})
+                </button>
+            `).join('');
+        }
+
+        function switchCategory(type) {
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(type));
+            });
+            renderVideoList(CURRENT_DATA[type]);
+        }
+
+function renderVideoList(list) {
+    const container = document.getElementById('video-lists');
+    container.innerHTML = `
+        <div class="episodes">
+            ${list.map(item => {
+                const escapedTitle = item.vod_name.replace(/'/g, "\\'");
+                return `
+                <div class="episode" onclick="searchByTitleInNewTab('${escapedTitle}')">
+                    <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+                    <div class="video-name">${item.vod_name}</div>
+                </div>
+                `;
+            }).join('')}
+        </div>`;
+}
+
+        // —— 修改后的 搜索功能 —— 
+        async function performSearch() {
+            const keyword = document.getElementById('search-input').value.trim();
+            if (!keyword) return showError('请输入搜索内容');
+            
+            showSpinner();
+            try {
+                let result = null;
+                for (const [index, api] of CONFIG.searchApis.entries()) {
+                    try {
+                        let apiUrl = api.keywordApi + encodeURIComponent(keyword);
+                        if (CONFIG.proxyBase) {
+                            apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                        }
+                        const data = await fetchCleanJson(apiUrl);
+                        if (data.list?.length) {
+                            result = { data: data.list, apiIndex: index };
+                            break;
+                        }
+                    } catch (e) {
+                        console.warn(`[${api.name}] 搜索失败:`, e);
+                    }
+                }
+
+                if (!result) return showError('没有找到相关内容');
+                renderSearchResults(result.data, result.apiIndex);
+            } catch (e) {
+                showError('搜索失败: ' + e.message);
+            } finally {
+                hideSpinner();
+                closeSearchModal();
+            }
+        }
+
+// 点击视频条目后，触发对应标题的搜索
+function searchByTitle(title) {
+    // 1. 获取搜索输入框元素
+    const searchInput = document.getElementById('search-input');
+    // 2. 将输入框的值设为当前视频标题
+    searchInput.value = title;
+    // 3. 调用原搜索函数，执行搜索（与手动点击“立即搜索”效果一致）
+    performSearch();
+}
+		
+// 在新标签页中搜索 - 适配手机端
+function searchByTitleInNewTab(title) {
+    // 创建一个隐藏的iframe来执行搜索，避免被浏览器拦截
+    const tempInput = document.createElement('input');
+    tempInput.style.position = 'fixed';
+    tempInput.style.left = '-1000px';
+    tempInput.value = title;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    
+    // 打开新标签页并执行搜索
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+        // 设置新窗口的内容，包含搜索逻辑
+        newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>搜索中...</title>
+                <style>
+                    * {
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    body { 
+                        background: #2d3436; 
+                        color: white; 
+                        font-family: Arial, sans-serif;
+                        padding: 0;
+                        margin: 0;
+                    }
+                    .loading { 
+                        text-align: center; 
+                        padding: 50px 20px;
+                    }
+                    .spinner {
+                        width: 40px;
+                        height: 40px;
+                        border: 4px solid rgba(255,255,255,0.3);
+                        border-top-color: #ff6b6b;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                        margin: 0 auto 20px;
+                    }
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+                    
+                    /* 搜索结果容器 */
+                    .results-container {
+                        padding: 15px;
+                        max-width: 1200px;
+                        margin: 0 auto;
+                    }
+                    
+                    .results-title {
+                        font-size: 1.3rem;
+                        margin-bottom: 20px;
+                        text-align: center;
+                        padding: 0 10px;
+                    }
+                    
+                    /* 网格布局 - 响应式 */
+                    .results-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 15px;
+                    }
+                    
+                    /* 平板端 */
+                    @media (min-width: 600px) {
+                        .results-grid {
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 20px;
+                        }
+                        .results-title {
+                            font-size: 1.5rem;
+                            text-align: left;
+                        }
+                    }
+                    
+                    /* 桌面端 */
+                    @media (min-width: 900px) {
+                        .results-grid {
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 25px;
+                        }
+                        .results-container {
+                            padding: 20px;
+                        }
+                    }
+                    
+                    /* 大桌面端 */
+                    @media (min-width: 1200px) {
+                        .results-grid {
+                            grid-template-columns: repeat(5, 1fr);
+                        }
+                    }
+                    
+                    /* 视频项样式 */
+                    .video-item {
+                        text-align: center;
+                        cursor: pointer;
+                        transition: transform 0.3s;
+                    }
+                    
+                    .video-item:hover {
+                        transform: scale(1.03);
+                    }
+                    
+                    .video-image {
+                        width: 100%;
+                        border-radius: 8px;
+                        aspect-ratio: 2/3;
+                        object-fit: cover;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    }
+                    
+                    .video-name {
+                        margin-top: 8px;
+                        font-size: 0.9rem;
+                        line-height: 1.3;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        height: 2.6em;
+                    }
+                    
+                    /* 错误和加载状态 */
+                    .error-container, .loading-container {
+                        text-align: center;
+                        padding: 50px 20px;
+                        font-size: 1.1rem;
+                    }
+                    
+                    .loading-container .spinner {
+                        margin-bottom: 20px;
+                    }
+                    
+                    /* 详情页加载样式 */
+                    .detail-loading {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>正在搜索: ${title}</div>
+                </div>
+                <script>
+                    // 复制原页面的配置和函数
+                    const CONFIG = ${JSON.stringify(CONFIG)};
+                    
+                    async function performSearchInNewTab() {
+                        try {
+                            let result = null;
+                            for (const [index, api] of CONFIG.searchApis.entries()) {
+                                try {
+                                    let apiUrl = api.keywordApi + encodeURIComponent("${title}");
+                                    if (CONFIG.proxyBase) {
+                                        apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                                    }
+                                    const response = await fetch(apiUrl);
+                                    let text = await response.text();
+                                    if (text.includes('\\\\')) {
+                                        text = text.replace(/\\\\/g, '');
+                                    }
+                                    const data = JSON.parse(text);
+                                    if (data.list?.length) {
+                                        result = { data: data.list, apiIndex: index };
+                                        break;
+                                    }
+                                } catch (e) {
+                                    console.warn(\`[\${api.name}] 搜索失败:\`, e);
+                                }
+                            }
+
+                            if (result) {
+                                renderSearchResults(result.data, result.apiIndex);
+                            } else {
+                                document.body.innerHTML = '<div class="error-container">没有找到相关内容</div>';
+                            }
+                        } catch (e) {
+                            document.body.innerHTML = '<div class="error-container">搜索失败: ' + e.message + '</div>';
+                        }
+                    }
+
+                    function renderSearchResults(list, apiIndex) {
+                        document.body.innerHTML = \`
+                            <div class="results-container">
+                                <h2 class="results-title">搜索结果</h2>
+                                <div class="results-grid">
+                                    \${list.map(item => \`
+                                        <div class="video-item" onclick="loadVideoDetail(\${item.vod_id}, \${apiIndex})">
+                                            <img class="video-image" src="\${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+                                            <div class="video-name">\${item.vod_name}</div>
+                                        </div>
+                                    \`).join('')}
+                                </div>
+                            </div>
+                        \`;
+                    }
+
+                    async function loadVideoDetail(id, apiIndex) {
+                        document.body.innerHTML = \`
+                            <div class="detail-loading">
+                                <div class="spinner"></div>
+                                <div>加载中...</div>
+                            </div>
+                        \`;
+                        try {
+                            const api = CONFIG.searchApis[apiIndex];
+                            if (!api) throw new Error('无效的API配置');
+                            let apiUrl = api.idApi + id;
+                            if (CONFIG.proxyBase) {
+                                apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                            }
+                            
+                            const response = await fetch(apiUrl);
+                            let text = await response.text();
+                            if (text.includes('\\\\')) {
+                                text = text.replace(/\\\\/g, '');
+                            }
+                            const data = JSON.parse(text);
+                            const info = data.list?.[0];
+                            if (!info) throw new Error('没有找到视频详情');
+
+                            const cleanFrom = (info.vod_play_from || '').replace(/\\\\/g, '').split('|');
+                            const rawUrl = (info.vod_play_url || '').replace(/\\\\/g, '');
+                            const playUrl = rawUrl.split('\\$\\$\\$').map(group =>
+                                group.split('|').map(item => {
+                                    const [name, url] = item.split('\\$');
+                                    return { name, url };
+                                })
+                            );
+
+                            const playerData = {
+                                title: info.vod_name,
+                                playFrom: cleanFrom,
+                                playUrl: playUrl,
+                                cover: info.vod_pic
+                            };
+
+                            const storageKey = 'player_' + Date.now();
+                            localStorage.setItem(storageKey, JSON.stringify(playerData));
+                            window.location.href = 'player.html?key=' + storageKey;
+                        } catch (e) {
+                            document.body.innerHTML = '<div class="error-container">加载失败: ' + e.message + '</div>';
+                        }
+                    }
+
+                    // 页面加载完成后执行搜索
+                    window.addEventListener('load', performSearchInNewTab);
+                <\/script>
+            </body>
+            </html>
+        `);
+        newWindow.document.close();
+    }
+    
+    // 清理临时元素
+    document.body.removeChild(tempInput);
+}
+
+// —— 修改后的 搜索功能 —— 
+async function performSearch() {
+    const keyword = document.getElementById('search-input').value.trim();
+    if (!keyword) return showError('请输入搜索内容');
+    
+    showSpinner();
+    try {
+        let result = null;
+        for (const [index, api] of CONFIG.searchApis.entries()) {
+            try {
+                let apiUrl = api.keywordApi + encodeURIComponent(keyword);
+                if (CONFIG.proxyBase) {
+                    apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                }
+                const data = await fetchCleanJson(apiUrl);
+                if (data.list?.length) {
+                    result = { data: data.list, apiIndex: index };
+                    break;
+                }
+            } catch (e) {
+                console.warn(`[${api.name}] 搜索失败:`, e);
+            }
+        }
+
+        if (!result) return showError('没有找到相关内容');
+        renderSearchResults(result.data, result.apiIndex);
+    } catch (e) {
+        showError('搜索失败: ' + e.message);
+    } finally {
+        hideSpinner();
+        closeSearchModal();
+    }
+}
+
+        function renderSearchResults(list, apiIndex) {
+            const container = document.getElementById('main-container');
+            container.innerHTML = `
+                <div class="episodes">
+                    ${list.map(item => `
+                        <div class="episode" onclick="loadVideoDetail(${item.vod_id}, ${apiIndex})">
+                            <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
+                            <div class="video-name">${item.vod_name}</div>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
+
+        // —— 修改后的 详情加载 —— 
+        async function loadVideoDetail(id, apiIndex) {
+            showSpinner();
+            try {
+                const api = CONFIG.searchApis[apiIndex];
+                if (!api) throw new Error('无效的API配置');
+                let apiUrl = api.idApi + id;
+                if (CONFIG.proxyBase) {
+                    apiUrl = CONFIG.proxyBase + encodeURIComponent(apiUrl);
+                }
+                
+                const data = await fetchCleanJson(apiUrl);
+                const info = data.list?.[0];
+                if (!info) throw new Error('没有找到视频详情');
+
+                // 再次清理 play_from/play_url 字段
+                const cleanFrom = (info.vod_play_from || '').replace(/\\/g, '').split('|');
+                const rawUrl = (info.vod_play_url || '').replace(/\\/g, '');
+                const playUrl = rawUrl.split('$$$').map(group =>
+                    group.split('|').map(item => {
+                        const [name, url] = item.split('$');
+                        return { name, url };
+                    })
+                );
+
+                const playerData = {
+                    title: info.vod_name,
+                    playFrom: cleanFrom,
+                    playUrl: playUrl,
+                    cover: info.vod_pic
+                };
+
+                const storageKey = 'player_' + Date.now();
+                localStorage.setItem(storageKey, JSON.stringify(playerData));
+				// ←—— 这里将原来的 window.location.href 改成 window.open
+				const playerUrl = `player.html?key=${storageKey}`;
+                window.open(playerUrl, '_blank');
+            } catch (e) {
+                showError('加载失败: ' + e.message);
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        // 其他辅助函数保持不变……
+
+        function openSearchModal() {
+            document.getElementById('search-overlay').style.display = 'block';
+            document.getElementById('search-modal').classList.add('active');
+            setTimeout(() => document.getElementById('search-input').focus(), 100);
+        }
+        function closeSearchModal() {
+            document.getElementById('search-overlay').style.display = 'none';
+            document.getElementById('search-modal').classList.remove('active');
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeSearchModal();
+        });
+        document.getElementById('search-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') performSearch();
+        });
+        window.addEventListener('DOMContentLoaded', init);
+
+        function closeNotice() {
+            document.getElementById('noticeOverlay').style.display = 'none';
+            document.getElementById('noticeModal').style.display = 'none';
+        }
+        window.addEventListener('load', () => {
+            document.getElementById('noticeOverlay').style.display = 'block';
+            document.getElementById('noticeModal').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
