@@ -16,7 +16,7 @@
         ];
     </script>
     <style>
-        /* 原有样式完全不变，此处省略重复代码（保持你自己修改后的样式） */
+        /* 原有样式不变，只修改搜索结果相关样式 */
         :root {
             --primary-color: #ff6b6b;
             --bg-color: #2d3436;
@@ -325,6 +325,148 @@
     from { opacity: 0; transform: translate(-50%, -60%); }
     to { opacity: 1; transform: translate(-50%, -50%); }
 }
+
+        /* 修改后的搜索结果样式 */
+        .search-result-item {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .search-result-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .search-result-poster {
+            flex: 0 0 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        .search-result-poster img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .search-result-info {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .search-result-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        .detail-item {
+            display: flex;
+        }
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .detail-content {
+            color: rgba(255, 255, 255, 0.9);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .search-result-intro {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.8);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+/* 移动端适配（max-width: 767px）- 修改后 */
+@media (max-width: 767px) {
+    .search-result-item {
+        /* 1. 改为水平排列（图片+信息并排），替代原垂直排列 */
+        flex-direction: row; 
+        align-items: flex-start; /* 图片和文字顶部对齐，更整齐 */
+        gap: 10px; /* 图片和右侧信息的间距 */
+    }
+    .search-result-poster {
+        /* 2. 图片固定宽度（靠左），替代原100%宽度 */
+        flex: 0 0 80px; /* 固定图片宽度80px，不缩放 */
+        padding: 10px 0 10px 10px; /* 仅左/上/下留白，右留白靠gap控制 */
+        align-items: flex-start; /* 图片顶部对齐，避免下坠 */
+    }
+    .search-result-poster img {
+        /* 3. 图片充满容器，确保靠左显示 */
+        width: 100%; /* 图片占满80px宽的容器 */
+        max-height: 120px; /* 限制图片高度，避免过长 */
+        object-fit: cover; /* 保持图片比例，避免变形 */
+    }
+    .search-result-info {
+        /* 4. 信息区占满剩余空间，替代原100%宽度 */
+        flex: 1; /* 占据图片右侧所有剩余空间 */
+        padding: 10px 10px 10px 0; /* 仅右/上/下留白，左留白靠gap控制 */
+    }
+
+    /* 5. 类型/地区/年份 - 放到图片右侧（水平排列） */
+    .search-result-top-info {
+        display: flex; /* 水平排列 */
+        flex-wrap: wrap; /* 超出时自动换行，避免溢出 */
+        gap: 8px; /* 三个选项之间的间距 */
+        margin-bottom: 8px; /* 与下方主演区的间距 */
+    }
+    .search-result-top-info .detail-item {
+        flex: 1 1 auto; /* 自适应宽度，确保能并排 */
+        white-space: nowrap; /* 文字不换行，保持一行显示 */
+        font-size: 0.85rem; /* 适当缩小字体，避免溢出 */
+    }
+
+    /* 6. 主演/导演/简介 - 保持原垂直排列，位置不变 */
+    .search-result-bottom-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .search-result-bottom-info .detail-item {
+        font-size: 0.85rem;
+    }
+
+    /* 7. 简介 - 保持完整显示，优化行高 */
+    .search-result-intro {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        display: block;
+        -webkit-line-clamp: none;
+        overflow: visible;
+    }
+
+    /* 统一详情项样式 */
+    .detail-label {
+        margin-right: 4px; /* 缩小标签与内容间距，节省空间 */
+        color: rgba(255, 255, 255, 0.8);
+    }
+    .detail-content {
+        color: rgba(255, 255, 255, 0.95);
+    }
+}
+        /* 大屏幕适配 */
+        @media (min-width: 1200px) {
+            .search-result-poster {
+                flex: 0 0 180px;
+            }
+            .search-result-poster img {
+                max-height: 240px;
+            }
+        }
     </style>
     <link rel="icon" href="http://v.qq.com/favicon.ico">
 </head>
@@ -449,7 +591,7 @@ async function init() {
             renderVideoList(CURRENT_DATA[type]);
         }
 
-        // 【关键修改1】：分类列表渲染时，点击事件改为触发“搜索函数”（而非直接跳播放页）
+        // 【关键修改1】：分类列表渲染时，点击事件改为触发"搜索函数"（而非直接跳播放页）
         function renderVideoList(list) {
             const container = document.getElementById('video-lists');
             container.innerHTML = `
@@ -473,7 +615,7 @@ async function init() {
             const keyword = customTitle || document.getElementById('search-input').value.trim();
             if (!keyword) return showError('请输入搜索内容');
             
-            // 执行和“直接搜索”完全一致的逻辑
+            // 执行和"直接搜索"完全一致的逻辑
             performSearch(keyword);
         }
 
@@ -503,7 +645,7 @@ async function init() {
                 }
 
                 if (!result) {
-                    // 显示“无结果”，保持和直接搜索一致
+                    // 显示"无结果"，保持和直接搜索一致
                     document.getElementById('video-lists').innerHTML = `
                         <div style="text-align: center; padding: 50px 20px; color: #aaa;">
                             没有找到「${keyword}」相关内容
@@ -523,19 +665,55 @@ async function init() {
             }
         }
 
-        // 原有搜索结果渲染函数不变（确保和直接搜索样式一致）
+        // 【关键修改3】：重新设计搜索结果渲染函数，显示详细信息
         function renderSearchResults(list, apiIndex) {
-            const container = document.getElementById('video-lists');
-            container.innerHTML = `
-                <div class="episodes">
-                    ${list.map(item => `
-                        <div class="episode" onclick="loadVideoDetail(${item.vod_id}, ${apiIndex})">
-                            <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
-                            <div class="video-name">${item.vod_name}</div>
-                        </div>
-                    `).join('')}
-                </div>`;
-        }
+    const container = document.getElementById('video-lists');
+    container.innerHTML = list.map(item => `
+        <div class="search-result-item" onclick="loadVideoDetail(${item.vod_id}, ${apiIndex})">
+            <div class="search-result-poster">
+                <img src="${item.vod_pic || 'http://fpoimg.com/150x200?text=封面加载失败'}" 
+                     onerror="this.src='http://fpoimg.com/150x200?text=封面加载失败'"
+                     alt="${item.vod_name || '未知标题'}">
+            </div>
+            <div class="search-result-info">
+                <!-- 1. 标题 -->
+                <div class="search-result-title">${item.vod_name || '未知标题'}</div>
+
+                <!-- 2. 新增：顶部详情区（类型/地区/年份）- 保持原位置 -->
+                <div class="search-result-top-info">
+                    <div class="detail-item">
+                        <span class="detail-label">类型：</span>
+                        <span class="detail-content">${item.vod_type || '未知'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">地区：</span>
+                        <span class="detail-content">${item.vod_area || '未知'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">年份：</span>
+                        <span class="detail-content">${item.vod_year || '未知'}</span>
+                    </div>
+                </div>
+
+                <!-- 3. 新增：底部详情区（主演/导演/简介）- 移动端将放在图片下方 -->
+                <div class="search-result-bottom-info">
+                    <div class="detail-item">
+                        <span class="detail-label">主演：</span>
+                        <span class="detail-content">${item.vod_actor || '未知'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">导演：</span>
+                        <span class="detail-content">${item.vod_director || '未知'}</span>
+                    </div>
+                    <div class="search-result-intro">
+                        <span class="detail-label">简介：</span>
+                        ${item.vod_content || '暂无简介'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
 
         // 原有视频详情加载函数不变（确保和直接搜索逻辑一致）
         async function loadVideoDetail(id, apiIndex) {
