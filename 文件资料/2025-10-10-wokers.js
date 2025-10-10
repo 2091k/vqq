@@ -13,9 +13,8 @@ async function handleRequest(request) {
     const url = new URL(request.url);
     const keyword = url.searchParams.get('keyword');
     const id = url.searchParams.get('id');
-    const episodePath = url.searchParams.get('episodePath'); // 新增：获取单集路径参数
+    const episodePath = url.searchParams.get('episodePath');
 
-    // 新增：处理单集播放地址请求
     if (id && episodePath) {
       const realUrl = await extractRealUrl(episodePath);
       return new Response(JSON.stringify({
@@ -83,27 +82,31 @@ async function handleRequest(request) {
             vod_id: vid,
             vod_name: '',
             vod_pic: '',
+            vod_type: '',
+            vod_area: '',
+            vod_year: '',
+            vod_actor: '',
+            vod_director: '',
+            vod_content: '',
             vod_play_from: '',
             vod_play_url: ''
           };
         }
         const html = await resp.text();
 
-        let title = '未知剧集';
-        const titleMatch = html.match(/<title>(.*?)<\/title>/);
-        if (titleMatch) {
-          const raw = titleMatch[1];
-          const extracted = raw.split('《')[1]?.split('》')[0] || raw;
-          title = extracted.replace(/电视剧|电影|动漫/g, '').trim();
-        }
-
-        const picMatch = html.match(/data-original=["']([^"']+)["']/);
-        const vodPic = picMatch ? picMatch[1] : '';
-
+        // 提取基本信息
+        const info = extractVideoInfo(html);
+        
         return {
           vod_id: vid,
-          vod_name: title,
-          vod_pic: vodPic,
+          vod_name: info.title,
+          vod_pic: info.vod_pic,
+          vod_type: info.vod_type,
+          vod_area: info.vod_area,
+          vod_year: info.vod_year,
+          vod_actor: info.vod_actor,
+          vod_director: info.vod_director,
+          vod_content: info.vod_content,
           vod_play_from: '',
           vod_play_url: ''
         };
@@ -136,6 +139,56 @@ async function handleRequest(request) {
   }
 }
 
+// 提取视频信息的函数
+function extractVideoInfo(html) {
+  let title = '未知剧集';
+  const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/);
+  if (titleMatch) title = titleMatch[1].trim();
+
+  const picMatch = html.match(/data-original=["']([^"']+)["']/);
+  const vodPic = picMatch ? picMatch[1] : '';
+
+  // 匹配类型、地区、年份
+  let vod_type = '', vod_area = '', vod_year = '';
+  const dataBlock = html.match(/<p[^>]*class=["']data["'][^>]*>([\s\S]*?)<\/p>/);
+  if (dataBlock) {
+    const block = dataBlock[1];
+    const typeMatch = block.match(/类型：<\/span>\s*([^<]+)/);
+    const areaMatch = block.match(/地区：<\/span>\s*([^<]+)/);
+    const yearMatch = block.match(/年份：<\/span>\s*([^<]+)/);
+    vod_type = typeMatch ? typeMatch[1].trim() : '';
+    vod_area = areaMatch ? areaMatch[1].trim() : '';
+    vod_year = yearMatch ? yearMatch[1].trim() : '';
+  }
+
+  // 主演
+  let vod_actor = '';
+  const actorMatch = html.match(/<span[^>]*>主演：<\/span>\s*([^<]+)/);
+  if (actorMatch) vod_actor = actorMatch[1].trim();
+
+  // 导演
+  let vod_director = '';
+  const directorMatch = html.match(/<span[^>]*>导演：<\/span>\s*([^<]+)/);
+  if (directorMatch) vod_director = directorMatch[1].trim();
+
+  // 简介
+  let vod_content = '';
+  const descMatch = html.match(/<span[^>]*>简介：<\/span>\s*([^<]+)/);
+  if (descMatch) vod_content = descMatch[1].replace(/详情.*/, '').trim();
+
+  return {
+    title,
+    vod_pic: vodPic,
+    vod_type,
+    vod_area,
+    vod_year,
+    vod_actor,
+    vod_director,
+    vod_content
+  };
+}
+
+
 async function crawlDetail(videoId) {
   try {
     const url = `${BASE_URL}/view/${videoId}.html`;
@@ -143,16 +196,8 @@ async function crawlDetail(videoId) {
     if (!resp.ok) return null;
     const html = await resp.text();
 
-    let title = '未知剧集';
-    const titleMatch = html.match(/<title>(.*?)<\/title>/);
-    if (titleMatch) {
-      const raw = titleMatch[1];
-      const extracted = raw.split('《')[1]?.split('》')[0] || raw;
-      title = extracted.replace(/电视剧|电影|动漫/g, '').trim();
-    }
-
-    const picMatch = html.match(/data-original=["']([^"']+)["']/);
-    const vodPic = picMatch ? picMatch[1] : '';
+    // 使用提取函数获取基本信息
+    const info = extractVideoInfo(html);
 
     const sources = {};
     const tabUlMatch = html.match(/<ul[^>]*class=["'][^"']*nav-tabs[^"']*["'][^>]*>([\s\S]*?)<\/ul>/);
@@ -174,9 +219,8 @@ async function crawlDetail(videoId) {
             const episodeRegex = /<a[^>]*href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/g;
             let epMatch;
             while ((epMatch = episodeRegex.exec(listHtml))) {
-              const epPath = epMatch[1]; // 只保存路径，不获取实际播放地址
+              const epPath = epMatch[1];
               const epName = epMatch[2].trim();
-              // 不提前获取播放地址，只保存路径
               episodes.push({ name: epName, path: epPath });
             }
           }
@@ -185,19 +229,23 @@ async function crawlDetail(videoId) {
       }
     }
 
-    // 保存源名称和对应集数路径
     const vodPlayFrom = Object.keys(sources).join('|');
-    // 存储路径而非实际地址，使用特殊分隔符
     const vodPlayUrl = Object.values(sources)
       .map(list => list.map(ep => `${ep.name}$${ep.path}`).join('|'))
       .join('$$$');
 
     return {
       vod_id: videoId,
-      vod_name: title,
+      vod_name: info.title,
+      vod_pic: info.vod_pic,
+      vod_type: info.vod_type,
+      vod_area: info.vod_area,
+      vod_year: info.vod_year,
+      vod_actor: info.vod_actor,
+      vod_director: info.vod_director,
+      vod_content: info.vod_content,
       vod_play_from: vodPlayFrom,
-      vod_play_url: vodPlayUrl,
-      vod_pic: vodPic
+      vod_play_url: vodPlayUrl
     };
   } catch (err) {
     console.error('crawlDetail 发生错误:', err);
