@@ -153,7 +153,7 @@ function extractVideoInfo(html) {
   const dataBlock = html.match(/<p[^>]*class=["']data["'][^>]*>([\s\S]*?)<\/p>/);
   if (dataBlock) {
     const block = dataBlock[1];
-    const typeMatch = block.match(/类型：<\/span>\s*([^<]+)/);
+    const typeMatch = block.match(/类型：<\/span>\s*<a[^>]*>([^<]+)<\/a>/);
     const areaMatch = block.match(/地区：<\/span>\s*([^<]+)/);
     const yearMatch = block.match(/年份：<\/span>\s*([^<]+)/);
     vod_type = typeMatch ? typeMatch[1].trim() : '';
