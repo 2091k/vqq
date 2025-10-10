@@ -11,7 +11,7 @@
           {
            name: '主站',
             keywordApi: 'http://vqqtv.oo.me.eu.org/?keyword=',
-            idApi: 'http://vqqtv.oo.me.eu.org/?id='
+            idApi: 'http://newtv.2091k.cn/?id='
           }
         ];
     </script>
@@ -522,15 +522,23 @@
         };
         let CURRENT_DATA = {};
 
-        async function fetchCleanJson(url) {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(res.status);
-            let text = await res.text();
-            if (text.includes('\\')) {
-                text = text.replace(/\\/g, '');
-            }
-            return JSON.parse(text);
-        }
+async function fetchCleanJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    let text = await res.text();
+    // 【修复】：只处理“双重转义”（\\\\ → \\），不删除所有转义符
+    // 避免破坏JSON合法的转义结构（如\"、\\u等）
+    if (text.includes('\\\\')) {
+        text = text.replace(/\\\\/g, '\\'); 
+    }
+    // 解析前增加错误捕获，便于排查问题
+    try {
+        return JSON.parse(text);
+    } catch (parseErr) {
+        console.error('JSON解析失败，原始文本：', text.slice(0, 200)); // 打印前200字符排查
+        throw new Error(`JSON解析错误: ${parseErr.message}`);
+    }
+}
 
         function showSpinner() {
             document.getElementById('spinner-overlay').style.display = 'flex';
