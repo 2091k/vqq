@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- 样式部分保持不变，无需修改 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>魏无羡影院 - 在线播放</title>
@@ -175,7 +174,7 @@
     </header>
 
     <div class="container">
-        <div class="debug-info" id="debug-info"></div> <!-- 调试信息 -->
+        <div class="debug-info" id="debug-info"></div>
         <div id="player-container">
             <iframe id="video-iframe" allowfullscreen></iframe>
             <div class="loading-overlay" id="loading-overlay">
@@ -186,7 +185,6 @@
     </div>
 
     <script>
-        // 配置保持与主页面一致
         const CONFIG = {
             proxyBase: 'http://jasu.2091k.cn/',
             searchApis: [
@@ -203,6 +201,11 @@
         const sourceTabsEl = document.getElementById('source-tabs');
         const loadingEl = document.getElementById('loading-overlay');
 
+        let watchDuration = 0;
+        let timerInterval = null;
+        let currentEpisode = { name: '', path: '' };
+
+
         function initPlayer() {
             try {
                 const urlParams = new URLSearchParams(location.search);
@@ -214,11 +217,8 @@
 
                 playerData = JSON.parse(storedStr);
                 
-                // 核心修改1：计算总集数（取播放源中集数最多的数量）
                 const episodeCounts = playerData.playUrl.map(list => list?.length || 0);
-                const totalEpisodes = Math.max(...episodeCounts); // 取最大值
-
-                // 核心修改2：只保留核心调试信息，去掉请求/成功日志
+                const totalEpisodes = Math.max(...episodeCounts);
                 debugEl.innerHTML += `✅ 播放数据：
                     标题：${playerData.title}
                     播放源数量：${playerData.playFrom?.length || 0}
@@ -228,10 +228,20 @@
                     throw new Error('无可用播放源或集数');
                 }
 
-                // 渲染标题和播放源/集数
                 document.title = `${playerData.title} - 魏无羡影院`;
                 document.querySelector('.title').textContent = playerData.title || '未知视频';
                 renderSourcesAndEpisodes();
+
+                // 【关键修改】：渲染完所有集数后，定位并播放目标集数（从播放记录跳转时）
+                if (playerData.targetEpPath) {
+                    findAndPlayTargetEpisode(playerData.targetEpPath);
+                }
+
+                window.addEventListener('beforeunload', () => {
+                    if (currentEpisode.name) {
+                        saveWatchHistory();
+                    }
+                });
 
             } catch (err) {
                 alert(`初始化失败：${err.message}`);
@@ -255,14 +265,12 @@
                     return;
                 }
 
-                // 渲染播放源标签
                 const tabBtn = document.createElement('button');
                 tabBtn.className = 'source-tab' + (sourceIdx === 0 ? ' active' : '');
                 tabBtn.textContent = `${sourceName}（${episodesList.length}集）`;
                 tabBtn.onclick = () => switchSource(sourceName);
                 sourceTabsEl.appendChild(tabBtn);
 
-                // 渲染集数按钮
                 const episodesDiv = document.createElement('div');
                 episodesDiv.className = 'episodes';
                 episodesDiv.id = `source-${sourceName}`;
@@ -270,9 +278,10 @@
 
                 episodesList.forEach((ep, epIdx) => {
                     const epBtn = document.createElement('button');
-                    epBtn.className = 'episode-btn' + (epIdx === 0 ? ' active' : '');
+                    epBtn.className = 'episode-btn';
                     epBtn.textContent = ep.name || `第${epIdx+1}集`;
                     epBtn.dataset.path = ep.path || '';
+                    epBtn.dataset.name = ep.name || `第${epIdx+1}集`;
                     epBtn.onclick = () => playEpisode(epBtn);
                     episodesDiv.appendChild(epBtn);
                 });
@@ -280,9 +289,37 @@
                 document.querySelector('.container').appendChild(episodesDiv);
             });
 
-            // 自动播放第一集
-            const firstEpBtn = document.querySelector('.episode-btn');
-            if (firstEpBtn) firstEpBtn.click();
+            // 只有从正常入口进入时，才自动播放第一集（从记录跳转时走targetEpPath逻辑）
+            if (!playerData.targetEpPath) {
+                const firstEpBtn = document.querySelector('.episode-btn');
+                if (firstEpBtn) firstEpBtn.click();
+            }
+        }
+
+        // 【新增】：找到目标集数并自动播放
+        function findAndPlayTargetEpisode(targetPath) {
+            // 遍历所有播放源和集数，找到匹配path的按钮
+            const allEpBtns = document.querySelectorAll('.episode-btn');
+            let targetBtn = null;
+
+            allEpBtns.forEach(btn => {
+                if (btn.dataset.path === targetPath) {
+                    targetBtn = btn;
+                }
+            });
+
+            if (targetBtn) {
+                // 切换到目标集数所在的播放源
+                const sourceName = targetBtn.closest('.episodes').id.replace('source-', '');
+                switchSource(sourceName);
+                // 播放目标集数
+                targetBtn.click();
+            } else {
+                // 目标集数不存在时，默认播放第一集
+                const firstEpBtn = document.querySelector('.episode-btn');
+                if (firstEpBtn) firstEpBtn.click();
+                console.warn('目标集数未找到，默认播放第一集');
+            }
         }
 
         function switchSource(sourceName) {
@@ -296,21 +333,29 @@
 
         async function playEpisode(epBtn) {
             const epPath = epBtn.dataset.path;
+            const epName = epBtn.dataset.name;
             if (!epPath) {
                 alert('集数路径为空，无法播放');
                 return;
             }
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                saveWatchHistory();
+            }
+            currentEpisode = { name: epName, path: epPath };
+            watchDuration = 0;
+            startWatchTimer();
 
             loadingEl.style.display = 'flex';
             document.querySelectorAll('.episode-btn').forEach(btn => btn.classList.remove('active'));
             epBtn.classList.add('active');
 
             try {
-                // 核心修改3：删除请求和成功的debug日志，只在控制台打印（不显示在页面）
                 const api = CONFIG.searchApis[playerData.apiIndex || 0];
                 const requestUrl = `${api.idApi}${playerData.vodId}&episodePath=${encodeURIComponent(epPath)}`;
                 const finalUrl = CONFIG.proxyBase + encodeURIComponent(requestUrl);
-                console.log('请求单集地址:', finalUrl); // 只在控制台打印，页面不显示
+                console.log('请求单集地址:', finalUrl);
 
                 const resp = await fetch(finalUrl);
                 if (!resp.ok) throw new Error(`请求失败（状态码：${resp.status}）`);
@@ -319,14 +364,51 @@
                 if (!data.url) throw new Error('后端未返回播放地址');
 
                 document.getElementById('video-iframe').src = data.url;
-                console.log('播放地址获取成功:', data.url); // 只在控制台打印
+                console.log('播放地址获取成功:', data.url);
 
             } catch (err) {
                 alert(`播放失败：${err.message}`);
-                console.error('播放错误:', err); // 只在控制台打印错误
+                console.error('播放错误:', err);
             } finally {
                 loadingEl.style.display = 'none';
             }
+        }
+
+        function startWatchTimer() {
+            timerInterval = setInterval(() => {
+                watchDuration++;
+                if (watchDuration % 15 === 0) {
+                    saveWatchHistory();
+                    console.log(`自动保存记录：${playerData.title}-${currentEpisode.name}，观看${watchDuration}秒`);
+                }
+            }, 1000);
+        }
+
+        function saveWatchHistory() {
+            if (!playerData || !currentEpisode.name) return;
+
+            const historyStr = localStorage.getItem('watchHistory') || '[]';
+            const historyList = JSON.parse(historyStr);
+
+            const newRecord = {
+                title: playerData.title,
+                episodeName: currentEpisode.name,
+                playPath: currentEpisode.path,
+                duration: watchDuration,
+                watchTime: Date.now(),
+                playFrom: playerData.playFrom[0] || '未知源',
+                cover: playerData.cover || '',
+                vodId: playerData.vodId || '',
+                apiIndex: playerData.apiIndex || 0
+            };
+
+            const uniqueHistory = historyList.filter(
+                item => !(item.title === newRecord.title && item.episodeName === newRecord.episodeName)
+            );
+            uniqueHistory.push(newRecord);
+            uniqueHistory.sort((a, b) => b.watchTime - a.watchTime);
+
+            localStorage.setItem('watchHistory', JSON.stringify(uniqueHistory));
         }
 
         window.addEventListener('load', initPlayer);
