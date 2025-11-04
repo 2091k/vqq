@@ -5,7 +5,6 @@
     <title>魏无羡影院 - 在线视频播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script>
-        // 原有配置不变
         var PROXY_BASE = 'http://jasu.2091k.cn/';
         var SEARCH_API_GROUPS = [
           {
@@ -16,11 +15,11 @@
         ];
     </script>
     <style>
-        /* 原有样式不变，只修改搜索结果相关样式 */
         :root {
             --primary-color: #ff6b6b;
             --bg-color: #2d3436;
             --text-color: #ffffff;
+            --gray-color: rgba(255,255,255,0.7);
         }
 		.category-tabs {
   display: flex;
@@ -67,7 +66,6 @@
             padding: 0;
         }
         body {
-            /* font-family: Arial, sans-serif; */
             background: var(--bg-color);
             color: var(--text-color);
         }
@@ -92,17 +90,50 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .search-button {
+        /* 按钮样式：统一图标尺寸与间距 */
+        .history-button, .search-button {
             background: none;
             border: none;
             cursor: pointer;
             color: white;
-            font-size: 1.2rem;
             transition: color 0.3s;
-            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 0;
         }
-        .search-button:hover {
+        .history-button {
+            margin-left: auto;
+            margin-right: 15px; /* 与搜索按钮紧挨着 */
+        }
+        .search-button {
+            margin-left: 0;
+        }
+        .history-button:hover, .search-button:hover {
             color: var(--primary-color);
+        }
+        /* 关键：搜索输入框（添加SVG背景图标） */
+        #search-input {
+            width: 100%;
+            padding: 15px 25px 15px 45px; /* 左侧留空放SVG */
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #2d3436;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            /* 搜索SVG背景 */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 22 22' fill='none'%3E%3Cg stroke='%23666' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='9' cy='9' rx='6.96667' ry='6.96667' transform='rotate(-45 9 9)'/%3E%3Cline x1='15.5' y1='15.5' x2='15.5' y2='19' transform='rotate(-45 15.5 17.25)'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 15px center; /* 图标定位 */
+            background-size: 18px; /* 图标大小 */
+        }
+        #search-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
         .search-overlay {
             position: fixed;
@@ -147,23 +178,6 @@
                 transform: translate(-50%, -50%);
                 opacity: 1;
             }
-        }
-        .search-modal input {
-            width: 100%;
-            padding: 15px 25px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #2d3436;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .search-modal input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
         .search-modal button {
             width: 100%;
@@ -326,7 +340,6 @@
     to { opacity: 1; transform: translate(-50%, -50%); }
 }
 
-        /* 修改后的搜索结果样式 */
         .search-result-item {
             display: flex;
             background: rgba(255, 255, 255, 0.05);
@@ -385,52 +398,44 @@
             font-size: 0.85rem;
             line-height: 1.4;
             color: rgba(255, 255, 255, 0.8);
-            /* display: -webkit-box; */
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
         
-/* 移动端适配（max-width: 767px）- 修改后 */
 @media (max-width: 767px) {
     .search-result-item {
-        /* 1. 改为水平排列（图片+信息并排），替代原垂直排列 */
         flex-direction: row; 
-        align-items: flex-start; /* 图片和文字顶部对齐，更整齐 */
-        gap: 10px; /* 图片和右侧信息的间距 */
+        align-items: flex-start; 
+        gap: 10px; 
     }
     .search-result-poster {
-        /* 2. 图片固定宽度（靠左），替代原100%宽度 */
-        flex: 0 0 80px; /* 固定图片宽度80px，不缩放 */
-        padding: 10px 0 10px 10px; /* 仅左/上/下留白，右留白靠gap控制 */
-        align-items: flex-start; /* 图片顶部对齐，避免下坠 */
+        flex: 0 0 80px; 
+        padding: 10px 0 10px 10px; 
+        align-items: flex-start; 
     }
     .search-result-poster img {
-        /* 3. 图片充满容器，确保靠左显示 */
-        width: 100%; /* 图片占满80px宽的容器 */
-        max-height: 120px; /* 限制图片高度，避免过长 */
-        object-fit: cover; /* 保持图片比例，避免变形 */
+        width: 100%; 
+        max-height: 120px; 
+        object-fit: cover; 
     }
     .search-result-info {
-        /* 4. 信息区占满剩余空间，替代原100%宽度 */
-        flex: 1; /* 占据图片右侧所有剩余空间 */
-        padding: 10px 10px 10px 0; /* 仅右/上/下留白，左留白靠gap控制 */
+        flex: 1; 
+        padding: 10px 10px 10px 0; 
     }
 
-    /* 5. 类型/地区/年份 - 放到图片右侧（水平排列） */
     .search-result-top-info {
-        display: flex; /* 水平排列 */
-        flex-wrap: wrap; /* 超出时自动换行，避免溢出 */
-        gap: 8px; /* 三个选项之间的间距 */
-        margin-bottom: 8px; /* 与下方主演区的间距 */
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 8px; 
+        margin-bottom: 8px; 
     }
     .search-result-top-info .detail-item {
-        flex: 1 1 auto; /* 自适应宽度，确保能并排 */
-        white-space: nowrap; /* 文字不换行，保持一行显示 */
-        font-size: 0.85rem; /* 适当缩小字体，避免溢出 */
+        flex: 1 1 auto; 
+        white-space: nowrap; 
+        font-size: 0.85rem; 
     }
 
-    /* 6. 主演/导演/简介 - 保持原垂直排列，位置不变 */
     .search-result-bottom-info {
         display: flex;
         flex-direction: column;
@@ -440,7 +445,6 @@
         font-size: 0.85rem;
     }
 
-    /* 7. 简介 - 保持完整显示，优化行高 */
     .search-result-intro {
         font-size: 0.85rem;
         line-height: 1.4;
@@ -449,16 +453,14 @@
         overflow: visible;
     }
 
-    /* 统一详情项样式 */
     .detail-label {
-        margin-right: 4px; /* 缩小标签与内容间距，节省空间 */
+        margin-right: 4px; 
         color: rgba(255, 255, 255, 0.8);
     }
     .detail-content {
         color: rgba(255, 255, 255, 0.95);
     }
 }
-        /* 大屏幕适配 */
         @media (min-width: 1200px) {
             .search-result-poster {
                 flex: 0 0 180px;
@@ -467,11 +469,104 @@
                 max-height: 240px;
             }
         }
+
+        .watch-history-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 998;
+            display: none;
+        }
+        .watch-history-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            padding: 25px;
+            border-radius: 20px;
+            background: rgb(45 52 54 / 80%);
+            backdrop-filter: blur(30px);
+            z-index: 999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+        .watch-history-modal.active {
+            display: block;
+            opacity: 1;
+            animation: modalSlideIn 0.3s ease;
+        }
+        .watch-history-modal h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+        .watch-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .history-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .history-item-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-item-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--gray-color);
+        }
+        .history-empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+        .clear-history-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gray-color);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        .clear-history-btn:hover {
+            background: rgba(255, 88, 88, 0.2);
+            color: #ff6b6b;
+        }
     </style>
     <link rel="icon" href="http://v.qq.com/favicon.ico">
 </head>
 <body>
-    <!-- 原有HTML结构不变 -->
     <div class="header">
         <a href="http://vqq.2091k.cn" style="display:flex;align-items:center;">
             <svg id="custom-logo" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -489,12 +584,41 @@
             </svg>
         </a>
         <h1 class="title">魏无羡影院</h1>
-        <button class="search-button" onclick="openSearchModal()">🔍</button>
+        
+        <!-- 1. 播放记录SVG（原尺寸，圆半径6.96667） -->
+        <button class="history-button" onclick="openWatchHistoryModal()">
+            <svg class="svg_quick_icon svg_icon_history" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7.96667"/>
+                    <path d="M14.87 11.77H11V7.13"/>
+                </g>
+            </svg>
+        </button>
+        
+        <!-- 2. 搜索按钮SVG（修改后：圆半径与播放记录一致，22x22尺寸） -->
+        <button class="search-button" onclick="openSearchModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- 圆：rx=6.96667（与播放记录一致），旋转后居中 -->
+                    <ellipse cx="9" cy="9" rx="7.96667" ry="7.96667" transform="rotate(-45 9 9)"/>
+                    <!-- 直线：调整位置适配新圆 -->
+                    <line x1="15.5" y1="15.5" x2="15.5" y2="19" transform="rotate(-45 15.5 17.25)"/>
+                </g>
+            </svg>
+        </button>
+    </div>
+
+    <div class="watch-history-overlay" id="watch-history-overlay" onclick="closeWatchHistoryModal()"></div>
+    <div class="watch-history-modal" id="watch-history-modal">
+        <h3>播放记录</h3>
+        <div id="watch-history-list" class="watch-history-list"></div>
+        <button class="clear-history-btn" onclick="clearWatchHistory()">清空所有记录</button>
     </div>
 
     <div class="search-overlay" id="search-overlay" onclick="closeSearchModal()"></div>
     <div class="search-modal" id="search-modal">
-        <input type="text" id="search-input" placeholder="🔍 输入影片名称...">
+        <!-- 3. 搜索输入框：用CSS背景SVG替代emoji，placeholder只保留文字 -->
+        <input type="text" id="search-input" placeholder="输入影片名称...">
         <button onclick="performSearch()">立即搜索</button>
     </div>
 
@@ -515,7 +639,6 @@
     </div>
 	
     <script>
-        // 原有配置和基础函数不变
         const CONFIG = {
             proxyBase: typeof PROXY_BASE !== 'undefined' ? PROXY_BASE : '',
             searchApis: SEARCH_API_GROUPS || []
@@ -526,16 +649,13 @@ async function fetchCleanJson(url) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
     let text = await res.text();
-    // 【修复】：只处理“双重转义”（\\\\ → \\），不删除所有转义符
-    // 避免破坏JSON合法的转义结构（如\"、\\u等）
     if (text.includes('\\\\')) {
         text = text.replace(/\\\\/g, '\\'); 
     }
-    // 解析前增加错误捕获，便于排查问题
     try {
         return JSON.parse(text);
     } catch (parseErr) {
-        console.error('JSON解析失败，原始文本：', text.slice(0, 200)); // 打印前200字符排查
+        console.error('JSON解析失败，原始文本：', text.slice(0, 200));
         throw new Error(`JSON解析错误: ${parseErr.message}`);
     }
 }
@@ -553,13 +673,11 @@ async function fetchCleanJson(url) {
 async function init() {
     showSpinner();
     try {
-        // 1. 新增 fetchHomeData('动漫')，加入Promise.all数组
         const [movies, tvs, anime] = await Promise.all([
             fetchHomeData('电影'),
             fetchHomeData('电视剧'),
-            fetchHomeData('动漫') // 新增：拉取动漫分类数据
+            fetchHomeData('动漫')
         ]);
-        // 2. CURRENT_DATA 新增 '动漫' 键值对，存储动漫数据
         CURRENT_DATA = { '电影': movies, '电视剧': tvs, '动漫': anime};
         renderCategoryTabs();
         switchCategory('电影');
@@ -599,14 +717,12 @@ async function init() {
             renderVideoList(CURRENT_DATA[type]);
         }
 
-        // 【关键修改1】：分类列表渲染时，点击事件改为触发"搜索函数"（而非直接跳播放页）
         function renderVideoList(list) {
             const container = document.getElementById('video-lists');
             container.innerHTML = `
                 <div class="episodes">
                     ${list.map(item => {
                         const escapedTitle = item.vod_name.replace(/'/g, "\\'");
-                        // 点击分类内容时，触发searchByTitle（和搜索框搜索逻辑一致）
                         return `
                         <div class="episode" onclick="searchByTitle('${escapedTitle}')">
                             <img src="${item.vod_pic}" onerror="this.src='http://fpoimg.com/195x260?text=封面加载失败'">
@@ -617,19 +733,13 @@ async function init() {
                 </div>`;
         }
 
-        // 【关键修改2】：适配分类点击的搜索函数（支持手动输入/分类标题两种触发方式）
         function searchByTitle(customTitle = '') {
-            // 若有自定义标题（分类点击传入），则用该标题；否则用搜索框输入值
             const keyword = customTitle || document.getElementById('search-input').value.trim();
             if (!keyword) return showError('请输入搜索内容');
-            
-            // 执行和"直接搜索"完全一致的逻辑
             performSearch(keyword);
         }
 
-        // 【原有搜索函数调整】：支持接收外部传入的关键词（适配分类点击）
         async function performSearch(customKeyword = '') {
-            // 优先用外部传入的关键词（分类点击），其次用搜索框值（手动搜索）
             const keyword = customKeyword || document.getElementById('search-input').value.trim();
             if (!keyword) return showError('请输入搜索内容');
             
@@ -653,7 +763,6 @@ async function init() {
                 }
 
                 if (!result) {
-                    // 显示"无结果"，保持和直接搜索一致
                     document.getElementById('video-lists').innerHTML = `
                         <div style="text-align: center; padding: 50px 20px; color: #aaa;">
                             没有找到「${keyword}」相关内容
@@ -662,18 +771,15 @@ async function init() {
                     return;
                 }
 
-                // 渲染搜索结果（和直接搜索完全一致）
                 renderSearchResults(result.data, result.apiIndex);
             } catch (e) {
                 showError('搜索失败: ' + e.message);
             } finally {
                 hideSpinner();
-                // 若从分类点击触发，无需关闭搜索弹窗（因未打开）
                 if (!customKeyword) closeSearchModal();
             }
         }
 
-        // 【关键修改3】：重新设计搜索结果渲染函数，显示详细信息
         function renderSearchResults(list, apiIndex) {
     const container = document.getElementById('video-lists');
     container.innerHTML = list.map(item => `
@@ -684,10 +790,7 @@ async function init() {
                      alt="${item.vod_name || '未知标题'}">
             </div>
             <div class="search-result-info">
-                <!-- 1. 标题 -->
                 <div class="search-result-title">${item.vod_name || '未知标题'}</div>
-
-                <!-- 2. 新增：顶部详情区（类型/地区/年份）- 保持原位置 -->
                 <div class="search-result-top-info">
                     <div class="detail-item">
                         <span class="detail-label">类型：</span>
@@ -702,8 +805,6 @@ async function init() {
                         <span class="detail-content">${item.vod_year || '未知'}</span>
                     </div>
                 </div>
-
-                <!-- 3. 新增：底部详情区（主演/导演/简介）- 移动端将放在图片下方 -->
                 <div class="search-result-bottom-info">
                     <div class="detail-item">
                         <span class="detail-label">主演：</span>
@@ -723,8 +824,7 @@ async function init() {
     `).join('');
 }
 
-        // 原有视频详情加载函数不变（确保和直接搜索逻辑一致）
-        async function loadVideoDetail(id, apiIndex) {
+        async function loadVideoDetail(id, apiIndex, targetEpPath = '') {
             showSpinner();
             try {
                 const api = CONFIG.searchApis[apiIndex];
@@ -753,7 +853,8 @@ async function init() {
                     playUrl: playUrl,
                     cover: info.vod_pic,
                     vodId: info.vod_id,
-                    apiIndex: apiIndex
+                    apiIndex: apiIndex,
+                    targetEpPath: targetEpPath
                 };
 
                 const storageKey = 'player_' + Date.now();
@@ -767,7 +868,6 @@ async function init() {
             }
         }
 
-        // 原有辅助函数不变
         function openSearchModal() {
             document.getElementById('search-overlay').style.display = 'block';
             document.getElementById('search-modal').classList.add('active');
@@ -778,7 +878,10 @@ async function init() {
             document.getElementById('search-modal').classList.remove('active');
         }
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeSearchModal();
+            if (e.key === 'Escape') {
+                closeSearchModal();
+                closeWatchHistoryModal();
+            }
         });
         document.getElementById('search-input').addEventListener('keypress', e => {
             if (e.key === 'Enter') performSearch();
@@ -794,7 +897,78 @@ async function init() {
             document.getElementById('noticeModal').style.display = 'block';
         });
 
-        // 【删除无用函数】：删除原来直接跳播放页的searchByTitleInNewTab（避免冲突）
+        function goToWatchedEpisode(index) {
+            const historyList = getWatchHistory();
+            const item = historyList[index];
+            if (!item) return showError('记录不存在');
+            loadVideoDetail(item.vodId, item.apiIndex, item.playPath);
+            closeWatchHistoryModal();
+        }
+
+        function openWatchHistoryModal() {
+            document.getElementById('watch-history-overlay').style.display = 'block';
+            document.getElementById('watch-history-modal').classList.add('active');
+            renderWatchHistory();
+        }
+
+        function closeWatchHistoryModal() {
+            document.getElementById('watch-history-overlay').style.display = 'none';
+            document.getElementById('watch-history-modal').classList.remove('active');
+        }
+
+        function getWatchHistory() {
+            const historyStr = localStorage.getItem('watchHistory');
+            if (!historyStr) return [];
+            return JSON.parse(historyStr).sort((a, b) => b.watchTime - a.watchTime);
+        }
+
+        function renderWatchHistory() {
+            const historyList = getWatchHistory();
+            const container = document.getElementById('watch-history-list');
+
+            if (historyList.length === 0) {
+                container.innerHTML = `
+                    <div class="history-empty">
+                        暂无播放记录<br>
+                        观看视频后将自动保存记录
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = historyList.map((item, index) => `
+                <div class="history-item" onclick="goToWatchedEpisode(${index})">
+                    <div class="history-item-title">${item.title} - ${item.episodeName}</div>
+                    <div class="history-item-meta">
+                        <span>观看时长：${formatTime(item.duration)}</span>
+                        <span>最后观看：${formatDate(item.watchTime)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearWatchHistory() {
+            if (confirm('确定要清空所有播放记录吗？')) {
+                localStorage.removeItem('watchHistory');
+                renderWatchHistory();
+            }
+        }
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const hour = date.getHours().toString().padStart(2, '0');
+            const minute = date.getMinutes().toString().padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}`;
+        }
     </script>
 </body>
 </html>
