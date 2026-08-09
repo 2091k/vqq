@@ -10,7 +10,7 @@ const PAGE_SIZE = 36; // 修改分页大小为36
 
 // 修改：同时返回cover列表（顺序）以及映射
 async function fetchCoverData() {
-  const res = await fetch('https://vqqimg.2091k.cn/', {
+  const res = await fetch('https://vqqimg.2091k.cn/img.txt', {
     headers: {
       'User-Agent': 'Cloudflare-Worker'
     }
@@ -49,10 +49,17 @@ function getQueryParam(url, key, defaultValue = '') {
 async function handleRequest(request, env) {
   try {
     const url = new URL(request.url);
-    const type = getQueryParam(request.url, 'type', '电视剧');
-    const page = parseInt(getQueryParam(request.url, 'page', '1'), 10);
+    const type = getQueryParam(request.url, 'type', '');
+    const pageRaw = getQueryParam(request.url, 'page', '1');
+    const page = parseInt(pageRaw, 10);
     const validTypes = ['电视剧', '电影', '动漫'];
 
+    // 核心修改：
+    // 1. 没有type参数、type为空 → 返回404，不输出内容
+    // 2. type不在允许列表内返回400
+    if (!type) {
+      return new Response("Not Found", { status: 404 });
+    }
     if (!validTypes.includes(type)) {
       return new Response('Invalid type parameter', { status: 400 });
     }
