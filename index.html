@@ -5,12 +5,12 @@
     <title>魏无羡影院 - 在线视频播放</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script>
-        var PROXY_BASE = 'http://jasu.2091k.cn/';
+        var PROXY_BASE = 'http://jasu.521156.xyz/';
         var SEARCH_API_GROUPS = [
           {
            name: '主站',
-            keywordApi: 'http://vqq2026.2091k.cn/?keyword=',
-            idApi: 'http://vqq2026.2091k.cn/?id='
+            keywordApi: 'http://vqq2026.521156.xyz/?keyword=',
+            idApi: 'http://vqq2026.521156.xyz/?id='
           }
         ];
     </script>
@@ -568,7 +568,7 @@
 </head>
 <body>
     <div class="header">
-        <a href="http://vqq.2091k.cn" style="display:flex;align-items:center;">
+        <a href="http://vqq.521156.xyz" style="display:flex;align-items:center;">
             <svg id="custom-logo" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
             <g clip-path="url(#clip0_265_223)">
                 <path d="M6.1225 23.5028C6.801 28.0786 7.61233 31.518 12.9034 29.8054C17.9778 28.1705 22.8601 25.2644 27.1477 21.9701C28.6845 20.6519 31.3638 18.7922 31.4169 16.6075C31.3638 14.4146 28.6845 12.5631 27.1477 11.2429C22.856 7.94851 17.9778 5.04855 12.9034 3.4054C7.61233 1.69695 6.801 5.13848 6.1225 9.71014C5.59523 14.2926 5.59523 18.9204 6.1225 23.5028Z" fill="#0098FF"/>
@@ -691,7 +691,7 @@ async function init() {
 }
 
         async function fetchHomeData(type) {
-            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`http://vqqadmin.2091k.cn/?type=${type}&page=1`);
+            const proxyUrl = CONFIG.proxyBase + encodeURIComponent(`http://vqqadmin.521156.xyz/?type=${type}&page=1`);
             const res = await fetch(proxyUrl);
             if (!res.ok) throw new Error(res.status);
             const data = await res.json();
